@@ -1,5 +1,5 @@
 {
-  "name": "nail-admin-backend",
+  "name": "universal-admin-backend",
   "version": "0.0.1",
   "module": "src/main.js",
   "scripts": {

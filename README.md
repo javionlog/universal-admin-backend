@@ -1,4 +1,4 @@
-# Nail admin backend
+# Universal admin backend
 
 ## Development
 
