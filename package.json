@@ -1,6 +1,6 @@
 {
   "name": "nail-admin-backend",
-  "version": "1.0.50",
+  "version": "0.0.1",
   "module": "src/main.js",
   "scripts": {
     "prepare": "husky",
