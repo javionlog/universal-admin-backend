@@ -1,3 +1,3 @@
 module.exports = {
-  '*.{js,ts}': [() => 'biome check --write']
+  '*.{js,ts,json}': [() => 'biome check --write']
 }
