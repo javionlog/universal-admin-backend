@@ -1,15 +1,22 @@
 {
   "name": "nail-admin-backend",
   "version": "1.0.50",
+  "module": "src/main.js",
   "scripts": {
+    "prepare": "husky",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/main.ts",
+    "lint": "biome check --write .",
+    "lint-staged": "lint-staged -c ./lintstagedrc.js"
   },
   "dependencies": {
+    "@elysiajs/swagger": "^1.1.1",
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "@biomejs/biome": "^1.8.3",
+    "bun-types": "latest",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9"
+  }
 }
