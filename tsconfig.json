@@ -51,5 +51,6 @@
     /* Command Line */
 
     /* Watch Options */
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
