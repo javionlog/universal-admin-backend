@@ -7,7 +7,7 @@ export const jwtPlugin = (app: Elysia) => {
   return app.use(jwt({ name: JWT_NAME, secret: JWT_SECRET }))
 }
 
-export const authResolve = (app: Elysia) => {
+export const authDerive = (app: Elysia) => {
   return app
     .use(jwtPlugin)
     .resolve(async ({ jwt, set, cookie: { accessToken } }) => {

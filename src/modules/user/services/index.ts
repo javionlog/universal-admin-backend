@@ -1,19 +1,17 @@
 import { db } from '@/db/index'
 import {
-  type insertUserSchema,
-  type selectUserSchema,
+  type InsertUserParams,
+  type SelectUserParams,
   user
-} from '@/db/schemas/user'
+} from '@/db/schemas/user/index'
 import {
   defaultPageIndex,
   defaultPageSize
 } from '@/modules/shared/constants/indext'
-import type { PageParams } from '@/types/index'
+import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, like } from 'drizzle-orm'
-import type { Static } from 'elysia'
 
-export type InsertUserParams = Omit<Static<typeof insertUserSchema>, 'id'>
-export type GetUserParams = Static<typeof selectUserSchema> & PageParams
+export type FindUsersParams = SelectUserParams & PageParams & TimeRangeParams
 
 export const createUser = async (params: InsertUserParams) => {
   const result = await db.insert(user).values(params).returning().get()
@@ -22,7 +20,7 @@ export const createUser = async (params: InsertUserParams) => {
 }
 
 export const getSensitiveUserById = async (
-  params: Pick<GetUserParams, 'id'>
+  params: Pick<SelectUserParams, 'id'>
 ) => {
   const result = await db
     .select()
@@ -32,7 +30,7 @@ export const getSensitiveUserById = async (
   return result
 }
 
-export const getUserById = async (params: Pick<GetUserParams, 'id'>) => {
+export const getUserById = async (params: Pick<SelectUserParams, 'id'>) => {
   const result = await getSensitiveUserById(params)
   if (result) {
     const { password, ...rest } = result
@@ -42,7 +40,7 @@ export const getUserById = async (params: Pick<GetUserParams, 'id'>) => {
 }
 
 export const getSensitiveUserByUsername = async (
-  params: Pick<GetUserParams, 'username'>
+  params: Pick<SelectUserParams, 'username'>
 ) => {
   const result = await db
     .select()
@@ -53,7 +51,7 @@ export const getSensitiveUserByUsername = async (
 }
 
 export const getUserByUsername = async (
-  params: Pick<GetUserParams, 'username'>
+  params: Pick<SelectUserParams, 'username'>
 ) => {
   const result = await getSensitiveUserByUsername(params)
   if (result) {
@@ -63,18 +61,23 @@ export const getUserByUsername = async (
   return result
 }
 
-export const findUsers = async (params: Partial<GetUserParams>) => {
+export const findUsers = async (params: Partial<FindUsersParams>) => {
   const { password, ...rest } = getTableColumns(user)
   const {
     pageIndex = defaultPageIndex,
     pageSize = defaultPageSize,
-    username
+    ...restParams
   } = params
   const recordsDynamic = db.select(rest).from(user).$dynamic()
   const totalDynamic = db.select({ value: count() }).from(user).$dynamic()
-  if (username) {
-    recordsDynamic.where(like(user.username, `%${username}%`))
-    totalDynamic.where(like(user.username, `%${username}%`))
+
+  for (const key of Object.keys(restParams)) {
+    type Key = keyof typeof restParams
+    const val = restParams[key as Key]
+    if (val) {
+      recordsDynamic.where(like(user.username, `%${val}%`))
+      totalDynamic.where(like(user.username, `%${val}%`))
+    }
   }
 
   const records = await recordsDynamic

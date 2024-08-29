@@ -1,6 +1,6 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
-import { insertUserSchema, selectUserSchema } from '@/db/schemas/user'
-import { authResolve } from '@/modules/auth/plugins/index'
+import { insertUserSchema, selectUserSchema } from '@/db/schemas/user/index'
+import { authDerive } from '@/modules/auth/plugins/index'
 import { BaseController } from '@/modules/shared/controllers/index'
 import { getExpTimestamp } from '@/modules/shared/libs/index'
 import {
@@ -57,9 +57,8 @@ export const Controller = BaseController.group('/auth', app => {
           maxAge: REFRESH_TOKEN_EXP,
           path: '/'
         })
-        const { password, ...rest } = user
         return {
-          ...rest,
+          username: user.username,
           accessToken: accessJwtToken,
           refreshToken: refreshJwtToken
         }
@@ -71,7 +70,7 @@ export const Controller = BaseController.group('/auth', app => {
         body: t.Pick(selectUserSchema, ['username', 'password']),
         response: {
           200: t.Composite([
-            t.Omit(selectUserSchema, ['password']),
+            t.Pick(selectUserSchema, ['username']),
             t.Object({
               accessToken: t.String(),
               refreshToken: t.String()
@@ -88,7 +87,9 @@ export const Controller = BaseController.group('/auth', app => {
           cost: 10
         })
         const user = await createUser({ ...body, password: hashPassword })
-        return user
+        return {
+          username: user.username
+        }
       },
       {
         type: 'application/json',
@@ -96,7 +97,7 @@ export const Controller = BaseController.group('/auth', app => {
         tags: ['Auth'],
         body: insertUserSchema,
         response: {
-          200: t.Omit(selectUserSchema, ['password'])
+          200: t.Pick(selectUserSchema, ['username'])
         }
       }
     )
@@ -167,7 +168,7 @@ export const Controller = BaseController.group('/auth', app => {
         }
       }
     )
-    .use(authResolve)
+    .use(authDerive)
     .post(
       '/sign-out',
       ({ cookie: { accessToken, refreshToken } }) => {

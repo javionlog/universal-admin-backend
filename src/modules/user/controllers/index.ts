@@ -1,7 +1,7 @@
-import { selectUserSchema } from '@/db/schemas/user'
+import { selectUserSchema } from '@/db/schemas/user/index'
 import { GuardController } from '@/modules/shared/controllers/index'
 import { findUsers, getUserByUsername } from '@/modules/user/services/index'
-import { PageSchema } from '@/schematics/index'
+import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
 export const Controller = GuardController.group('/user', app => {
@@ -36,7 +36,19 @@ export const Controller = GuardController.group('/user', app => {
         type: 'application/json',
         detail: { summary: '用户列表' },
         tags: ['User'],
-        body: t.Composite([t.Pick(selectUserSchema, ['username']), PageSchema]),
+        body: t.Composite([
+          t.Partial(
+            t.Omit(selectUserSchema, [
+              'id',
+              'password',
+              'lastSignInAt',
+              'createdAt',
+              'updatedAt'
+            ])
+          ),
+          PageSchema,
+          TimeRangeSchema
+        ]),
         response: {
           200: t.Object({
             records: t.Array(t.Omit(selectUserSchema, ['password'])),
