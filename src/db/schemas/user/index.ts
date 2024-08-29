@@ -52,11 +52,11 @@ const insertColumns: InsertColumns = {
     description: schemaComment.delFlag,
     default: 'N'
   }),
-  lastSignInAt: t.String({ description: schemaComment.lastSignInAt }),
-  createdAt: t.String({ description: schemaComment.createdAt }),
-  updatedAt: t.String({ description: schemaComment.updatedAt }),
-  createdBy: t.String({ description: schemaComment.createdBy }),
-  updatedBy: t.String({ description: schemaComment.updatedBy })
+  lastSignInAt: t.Number({ description: schemaComment.lastSignInAt }),
+  createdAt: t.Number({ description: schemaComment.createdAt }),
+  updatedAt: t.Number({ description: schemaComment.updatedAt }),
+  createdBy: t.Number({ description: schemaComment.createdBy }),
+  updatedBy: t.Number({ description: schemaComment.updatedBy })
 }
 
 type SelectColumns = Refine<typeof user, 'select'>

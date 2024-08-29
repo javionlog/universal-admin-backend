@@ -9,12 +9,20 @@ import {
   defaultPageSize
 } from '@/modules/shared/constants/indext'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, getTableColumns, like } from 'drizzle-orm'
+import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
 
 export type FindUsersParams = SelectUserParams & PageParams & TimeRangeParams
 
 export const createUser = async (params: InsertUserParams) => {
-  const result = await db.insert(user).values(params).returning().get()
+  const result = await db
+    .insert(user)
+    .values({
+      ...params,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    })
+    .returning()
+    .get()
   const { password, ...rest } = result
   return rest
 }
@@ -71,12 +79,38 @@ export const findUsers = async (params: Partial<FindUsersParams>) => {
   const recordsDynamic = db.select(rest).from(user).$dynamic()
   const totalDynamic = db.select({ value: count() }).from(user).$dynamic()
 
-  for (const key of Object.keys(restParams)) {
+  for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
+    const key = k as Key
     const val = restParams[key as Key]
     if (val) {
-      recordsDynamic.where(like(user.username, `%${val}%`))
-      totalDynamic.where(like(user.username, `%${val}%`))
+      switch (key) {
+        case 'createdFrom': {
+          recordsDynamic.where(gte(user.createdAt, val as number))
+          totalDynamic.where(gte(user.createdAt, val as number))
+          break
+        }
+        case 'createdTo': {
+          recordsDynamic.where(lte(user.createdAt, val as number))
+          totalDynamic.where(lte(user.createdAt, val as number))
+          break
+        }
+        case 'updatedFrom': {
+          recordsDynamic.where(gte(user.updatedAt, val as number))
+          totalDynamic.where(gte(user.updatedAt, val as number))
+          break
+        }
+        case 'updatedTo': {
+          recordsDynamic.where(lte(user.updatedAt, val as number))
+          totalDynamic.where(lte(user.updatedAt, val as number))
+          break
+        }
+        default: {
+          recordsDynamic.where(like(user[key], `%${val}%`))
+          totalDynamic.where(like(user[key], `%${val}%`))
+          break
+        }
+      }
     }
   }
 
