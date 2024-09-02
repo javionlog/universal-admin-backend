@@ -1,7 +1,7 @@
 import { db } from '@/db/index'
 import {
-  type InsertUserParams,
-  type SelectUserParams,
+  type InsertParams,
+  type SelectParams,
   user
 } from '@/db/schemas/user/index'
 import {
@@ -11,9 +11,9 @@ import {
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
 
-export type FindUsersParams = SelectUserParams & PageParams & TimeRangeParams
+export type FindParams = SelectParams & PageParams & TimeRangeParams
 
-export const createUser = async (params: InsertUserParams) => {
+export const createUser = async (params: InsertParams) => {
   const result = await db
     .insert(user)
     .values({
@@ -21,14 +21,24 @@ export const createUser = async (params: InsertUserParams) => {
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
-    .returning()
+    .returning({ username: user.username })
     .get()
-  const { password, ...rest } = result
-  return rest
+  return result
+}
+
+export const updateUser = async (params: Omit<InsertParams, 'password'>) => {
+  const { username, createdAt, createdBy, ...rest } = params
+  const result = await db
+    .update(user)
+    .set(rest)
+    .where(eq(user.username, params.username))
+    .returning({ username: user.username })
+    .get()
+  return result
 }
 
 export const getSensitiveUserById = async (
-  params: Pick<SelectUserParams, 'id'>
+  params: Pick<SelectParams, 'id'>
 ) => {
   const result = await db
     .select()
@@ -38,7 +48,7 @@ export const getSensitiveUserById = async (
   return result
 }
 
-export const getUserById = async (params: Pick<SelectUserParams, 'id'>) => {
+export const getUserById = async (params: Pick<SelectParams, 'id'>) => {
   const result = await getSensitiveUserById(params)
   if (result) {
     const { password, ...rest } = result
@@ -48,7 +58,7 @@ export const getUserById = async (params: Pick<SelectUserParams, 'id'>) => {
 }
 
 export const getSensitiveUserByUsername = async (
-  params: Pick<SelectUserParams, 'username'>
+  params: Pick<SelectParams, 'username'>
 ) => {
   const result = await db
     .select()
@@ -59,7 +69,7 @@ export const getSensitiveUserByUsername = async (
 }
 
 export const getUserByUsername = async (
-  params: Pick<SelectUserParams, 'username'>
+  params: Pick<SelectParams, 'username'>
 ) => {
   const result = await getSensitiveUserByUsername(params)
   if (result) {
@@ -69,7 +79,7 @@ export const getUserByUsername = async (
   return result
 }
 
-export const findUsers = async (params: Partial<FindUsersParams>) => {
+export const findUsers = async (params: Partial<FindParams>) => {
   const { password, ...rest } = getTableColumns(user)
   const {
     pageIndex = defaultPageIndex,

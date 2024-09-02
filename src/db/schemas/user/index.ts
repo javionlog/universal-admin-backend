@@ -17,8 +17,8 @@ export const user = sqliteTable('user', {
   lastSignInAt: integer('last_sign_in_at'),
   createdAt: integer('created_at'),
   updatedAt: integer('updated_at'),
-  createdBy: integer('created_by'),
-  updatedBy: integer('updated_by')
+  createdBy: text('created_by'),
+  updatedBy: text('updated_by')
 })
 
 export const schemaComment = {
@@ -35,8 +35,7 @@ export const schemaComment = {
   updatedBy: '更新人'
 }
 
-type InsertColumns = Refine<typeof user, 'insert'>
-const insertColumns: InsertColumns = {
+const insertColumns: Refine<typeof user, 'insert'> = {
   username: t.String({ description: schemaComment.username, minLength: 2 }),
   password: t.String({ description: schemaComment.password, minLength: 6 }),
   status: t.Union([t.Literal('Y'), t.Literal('N')], {
@@ -55,20 +54,18 @@ const insertColumns: InsertColumns = {
   lastSignInAt: t.Number({ description: schemaComment.lastSignInAt }),
   createdAt: t.Number({ description: schemaComment.createdAt }),
   updatedAt: t.Number({ description: schemaComment.updatedAt }),
-  createdBy: t.Number({ description: schemaComment.createdBy }),
-  updatedBy: t.Number({ description: schemaComment.updatedBy })
+  createdBy: t.String({ description: schemaComment.createdBy }),
+  updatedBy: t.String({ description: schemaComment.updatedBy })
 }
 
-type SelectColumns = Refine<typeof user, 'select'>
-const selectColumns: SelectColumns = {
+const selectColumns: Refine<typeof user, 'select'> = {
   ...insertColumns,
   username: t.String({ description: schemaComment.username }),
   password: t.String({ description: schemaComment.password })
 }
 
-export const insertUserSchema = createInsertSchema(user, insertColumns)
+export const insertSchema = createInsertSchema(user, insertColumns)
+export const selectSchema = createSelectSchema(user, selectColumns)
 
-export const selectUserSchema = createSelectSchema(user, selectColumns)
-
-export type InsertUserParams = Static<typeof insertUserSchema>
-export type SelectUserParams = Static<typeof selectUserSchema>
+export type InsertParams = Static<typeof insertSchema>
+export type SelectParams = Static<typeof selectSchema>

@@ -1,5 +1,8 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
-import { insertUserSchema, selectUserSchema } from '@/db/schemas/user/index'
+import {
+  insertSchema as insertUserSchema,
+  selectSchema as selectUserSchema
+} from '@/db/schemas/user/index'
 import { authDerive } from '@/modules/auth/plugins/index'
 import { BaseController } from '@/modules/shared/controllers/index'
 import { getExpTimestamp } from '@/modules/shared/libs/index'
@@ -13,7 +16,7 @@ import { t } from 'elysia'
 export const Controller = BaseController.group('/auth', app => {
   return app
     .post(
-      '/sign-in',
+      '/signIn',
       async ({ body, set, jwt, cookie: { accessToken, refreshToken } }) => {
         const user = await getSensitiveUserByUsername({
           username: body.username
@@ -80,7 +83,7 @@ export const Controller = BaseController.group('/auth', app => {
       }
     )
     .post(
-      '/sign-up',
+      '/signUp',
       async ({ body }) => {
         const hashPassword = await Bun.password.hash(body.password, {
           algorithm: 'bcrypt',
@@ -158,7 +161,7 @@ export const Controller = BaseController.group('/auth', app => {
       },
       {
         type: 'application/json',
-        detail: { summary: '刷新令牌' },
+        detail: { summary: '令牌刷新' },
         tags: ['Auth'],
         response: {
           200: t.Object({
@@ -170,7 +173,7 @@ export const Controller = BaseController.group('/auth', app => {
     )
     .use(authDerive)
     .post(
-      '/sign-out',
+      '/signOut',
       ({ cookie: { accessToken, refreshToken } }) => {
         accessToken?.remove()
         refreshToken?.remove()

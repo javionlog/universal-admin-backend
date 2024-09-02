@@ -24,6 +24,10 @@ export const globalPlugin = (app: Elysia) => {
             {
               name: 'User',
               description: 'User Module'
+            },
+            {
+              name: 'Permission',
+              description: 'Permission Module'
             }
           ]
         }
