@@ -33,13 +33,13 @@ export const userToRole = sqliteTable(
 
 export const userRoleRelation = relations(user, ({ many }) => {
   return {
-    userToRole: many(userToRole)
+    roles: many(userToRole)
   }
 })
 
 export const roleUserRelation = relations(role, ({ many }) => {
   return {
-    userToRole: many(userToRole)
+    users: many(userToRole)
   }
 })
 

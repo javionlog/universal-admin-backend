@@ -11,6 +11,7 @@ import {
   getSensitiveUserByUsername,
   getUserByUsername
 } from '@/modules/user/services/index'
+import { password } from 'bun'
 import { t } from 'elysia'
 
 export const Controller = BaseController.group('/auth', app => {
@@ -27,7 +28,7 @@ export const Controller = BaseController.group('/auth', app => {
           set.status = 'Bad Request'
           throw new Error(invalidUserMessage)
         }
-        const matchPassword = await Bun.password.verify(
+        const matchPassword = await password.verify(
           body.password,
           user.password,
           'bcrypt'
@@ -85,7 +86,7 @@ export const Controller = BaseController.group('/auth', app => {
     .post(
       '/signUp',
       async ({ body }) => {
-        const hashPassword = await Bun.password.hash(body.password, {
+        const hashPassword = await password.hash(body.password, {
           algorithm: 'bcrypt',
           cost: 10
         })
