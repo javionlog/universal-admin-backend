@@ -68,7 +68,6 @@ export const Controller = BaseController.group('/auth', app => {
         }
       },
       {
-        type: 'application/json',
         detail: { summary: '用户登录' },
         tags: ['Auth'],
         body: t.Pick(selectUserSchema, ['username', 'password']),
@@ -96,7 +95,6 @@ export const Controller = BaseController.group('/auth', app => {
         }
       },
       {
-        type: 'application/json',
         detail: { summary: '用户注册' },
         tags: ['Auth'],
         body: insertUserSchema,
@@ -161,7 +159,6 @@ export const Controller = BaseController.group('/auth', app => {
         }
       },
       {
-        type: 'application/json',
         detail: { summary: '令牌刷新' },
         tags: ['Auth'],
         response: {
@@ -181,7 +178,6 @@ export const Controller = BaseController.group('/auth', app => {
         return null
       },
       {
-        type: 'application/json',
         detail: { summary: '用户登出' },
         tags: ['Auth'],
         response: {

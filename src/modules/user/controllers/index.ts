@@ -21,7 +21,6 @@ export const Controller = GuardController.group('/user', app => {
         return result
       },
       {
-        type: 'application/json',
         detail: { summary: '用户信息' },
         tags: ['User'],
         body: t.Pick(selectSchema, ['username']),
@@ -42,7 +41,6 @@ export const Controller = GuardController.group('/user', app => {
         return result
       },
       {
-        type: 'application/json',
         detail: { summary: '用户更新' },
         tags: ['User'],
         body: t.Omit(insertSchema, ['password']),
@@ -58,7 +56,6 @@ export const Controller = GuardController.group('/user', app => {
         return result
       },
       {
-        type: 'application/json',
         detail: { summary: '用户列表' },
         tags: ['User'],
         body: t.Composite([

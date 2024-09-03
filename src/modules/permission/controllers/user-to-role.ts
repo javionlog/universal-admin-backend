@@ -36,7 +36,6 @@ export const UserToRoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '授权角色给用户' },
           tags: ['Permission'],
           body: insertSchema,
@@ -52,7 +51,6 @@ export const UserToRoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '用户角色关系列表' },
           tags: ['Permission'],
           body: t.Composite([
@@ -75,7 +73,6 @@ export const UserToRoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '用户角色关系所有' },
           tags: ['Permission'],
           body: t.Composite([

@@ -20,7 +20,6 @@ export const RoleController = (app: typeof GuardController) => {
           return role
         },
         {
-          type: 'application/json',
           detail: { summary: '角色创建' },
           tags: ['Permission'],
           body: insertSchema,
@@ -41,7 +40,6 @@ export const RoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '角色更新' },
           tags: ['Permission'],
           body: insertSchema,
@@ -62,7 +60,6 @@ export const RoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '角色删除' },
           tags: ['Permission'],
           body: t.Pick(insertSchema, ['roleCode']),
@@ -82,7 +79,6 @@ export const RoleController = (app: typeof GuardController) => {
           return role
         },
         {
-          type: 'application/json',
           detail: { summary: '角色信息' },
           tags: ['Permission'],
           body: t.Pick(selectSchema, ['roleCode']),
@@ -98,7 +94,6 @@ export const RoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          type: 'application/json',
           detail: { summary: '角色列表' },
           tags: ['Permission'],
           body: t.Composite([
