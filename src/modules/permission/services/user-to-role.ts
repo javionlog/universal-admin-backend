@@ -5,8 +5,8 @@ import {
   userToRole
 } from '@/db/schemas/user-to-role/index'
 import {
-  defaultPageIndex,
-  defaultPageSize
+  DEFAULT_PAGE_INDEXX,
+  DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
@@ -43,8 +43,8 @@ export const findUserToRoles = async (
 ) => {
   const columns = getTableColumns(userToRole)
   const {
-    pageIndex = defaultPageIndex,
-    pageSize = defaultPageSize,
+    pageIndex = DEFAULT_PAGE_INDEXX,
+    pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
   const recordsDynamic = db.select(columns).from(userToRole).$dynamic()

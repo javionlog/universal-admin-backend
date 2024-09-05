@@ -5,8 +5,8 @@ import {
   user
 } from '@/db/schemas/user/index'
 import {
-  defaultPageIndex,
-  defaultPageSize
+  DEFAULT_PAGE_INDEXX,
+  DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
@@ -82,8 +82,8 @@ export const getUserByUsername = async (
 export const findUsers = async (params: Partial<FindParams>) => {
   const { password, ...rest } = getTableColumns(user)
   const {
-    pageIndex = defaultPageIndex,
-    pageSize = defaultPageSize,
+    pageIndex = DEFAULT_PAGE_INDEXX,
+    pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
   const recordsDynamic = db.select(rest).from(user).$dynamic()

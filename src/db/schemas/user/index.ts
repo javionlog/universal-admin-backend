@@ -1,3 +1,5 @@
+import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
+import { BOOL_MAP } from '@/modules/shared/constants/indext'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import {
   type Refine,
@@ -7,62 +9,33 @@ import {
 import { type Static, t } from 'elysia'
 
 export const user = sqliteTable('user', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+  ...commonFields,
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
-  status: text('status').default('N'),
-  isAdmin: text('is_admin').default('N'),
-  sort: integer('sort').default(0),
-  delFlag: text('del_flag').default('N'),
-  lastSignInAt: integer('last_sign_in_at'),
-  createdAt: integer('created_at'),
-  updatedAt: integer('updated_at'),
-  createdBy: text('created_by'),
-  updatedBy: text('updated_by')
+  isAdmin: text('is_admin').default(BOOL_MAP.no),
+  lastSignInAt: integer('last_sign_in_at')
 })
 
-export const schemaComment = {
+export const schemaComments = {
+  ...baseComments,
   username: '用户名',
   password: '密码',
-  status: '状态，启用(Y)/禁用(N)',
   isAdmin: '是否管理员，是(Y)/否(N)',
-  sort: '排序',
-  delFlag: '删除标记，已删除(Y)/未删除(N)',
-  lastSignInAt: '最后登录时间',
-  createdAt: '创建时间',
-  updatedAt: '更新时间',
-  createdBy: '创建人',
-  updatedBy: '更新人'
+  lastSignInAt: '最后登录时间'
 }
 
 const insertColumns: Refine<typeof user, 'insert'> = {
-  username: t.String({ description: schemaComment.username, minLength: 2 }),
-  password: t.String({ description: schemaComment.password, minLength: 6 }),
-  status: t.Union([t.Literal('Y'), t.Literal('N')], {
-    description: schemaComment.status,
-    default: 'N'
+  ...baseColumns,
+  username: t.String({ description: schemaComments.username }),
+  password: t.String({ description: schemaComments.password }),
+  isAdmin: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+    description: schemaComments.isAdmin,
+    default: BOOL_MAP.no
   }),
-  isAdmin: t.Union([t.Literal('Y'), t.Literal('N')], {
-    description: schemaComment.isAdmin,
-    default: 'N'
-  }),
-  sort: t.Number({ description: schemaComment.sort, default: 0 }),
-  delFlag: t.Union([t.Literal('Y'), t.Literal('N')], {
-    description: schemaComment.delFlag,
-    default: 'N'
-  }),
-  lastSignInAt: t.Number({ description: schemaComment.lastSignInAt }),
-  createdAt: t.Number({ description: schemaComment.createdAt }),
-  updatedAt: t.Number({ description: schemaComment.updatedAt }),
-  createdBy: t.String({ description: schemaComment.createdBy }),
-  updatedBy: t.String({ description: schemaComment.updatedBy })
+  lastSignInAt: t.Number({ description: schemaComments.lastSignInAt })
 }
 
-const selectColumns: Refine<typeof user, 'select'> = {
-  ...insertColumns,
-  username: t.String({ description: schemaComment.username }),
-  password: t.String({ description: schemaComment.password })
-}
+const selectColumns: Refine<typeof user, 'select'> = insertColumns
 
 export const insertSchema = createInsertSchema(user, insertColumns)
 export const selectSchema = createSelectSchema(user, selectColumns)

@@ -1,13 +1,19 @@
 import {
-  defaultPageIndex,
-  defaultPageSize
+  DEFAULT_PAGE_INDEXX,
+  DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
 import { t } from 'elysia'
 
 export const PageSchema = t.Partial(
   t.Object({
-    pageIndex: t.Number({ description: '第几页', default: defaultPageIndex }),
-    pageSize: t.Number({ description: '每页多少条', default: defaultPageSize })
+    pageIndex: t.Number({
+      description: '第几页',
+      default: DEFAULT_PAGE_INDEXX
+    }),
+    pageSize: t.Number({
+      description: '每页多少条',
+      default: DEFAULT_PAGE_SIZE
+    })
   })
 )
 

@@ -5,8 +5,8 @@ import {
   role
 } from '@/db/schemas/role/index'
 import {
-  defaultPageIndex,
-  defaultPageSize
+  DEFAULT_PAGE_INDEXX,
+  DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, gte, lte } from 'drizzle-orm'
@@ -69,8 +69,8 @@ export const getRoleByRoleCode = async (
 export const findRoles = async (params: Partial<FindParams>) => {
   const columns = getTableColumns(role)
   const {
-    pageIndex = defaultPageIndex,
-    pageSize = defaultPageSize,
+    pageIndex = DEFAULT_PAGE_INDEXX,
+    pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
   const recordsDynamic = db.select(columns).from(role).$dynamic()
