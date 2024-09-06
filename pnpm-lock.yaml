@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  drizzle-kit@0.24.0:
+    hash: e6me7juqst3cfzpplec6hubsha
+    path: patches/drizzle-kit@0.24.0.patch
+
 dependencies:
   '@elysiajs/jwt':
     specifier: ^1.1.0
@@ -36,7 +41,7 @@ devDependencies:
     version: 1.1.26
   drizzle-kit:
     specifier: ^0.24.0
-    version: 0.24.0
+    version: 0.24.0(patch_hash=e6me7juqst3cfzpplec6hubsha)
   husky:
     specifier: ^9.1.5
     version: 9.1.5
@@ -847,7 +852,7 @@ packages:
     resolution: {integrity: sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==}
     engines: {node: '>=8'}
 
-  /drizzle-kit@0.24.0:
+  /drizzle-kit@0.24.0(patch_hash=e6me7juqst3cfzpplec6hubsha):
     resolution: {integrity: sha512-rUl5Rf5HLOVkAwHEVEi8xgulIRWzoys0q77RHGCxv5e9v8AI3JGFg7Ug5K1kn513RwNZbuNJMUKOXo0j8kPRgg==}
     hasBin: true
     dependencies:
@@ -858,6 +863,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
   /drizzle-orm@0.33.0(@libsql/client@0.10.0)(bun-types@1.1.26):
     resolution: {integrity: sha512-SHy72R2Rdkz0LEq0PSG/IdvnT3nGiWuRk+2tXZQ90GVq/XQhpCzu/EFT3V2rox+w8MlkBQxifF8pCStNYnERfA==}

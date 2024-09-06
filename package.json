@@ -8,14 +8,13 @@
     "dev": "bun run --watch src/main.ts",
     "lint": "biome check --write .",
     "lint-staged": "lint-staged -c ./lintstagedrc.js",
-    "db:check": "drizzle-kit check",
-    "db:drop": "drizzle-kit drop",
-    "db:generate": "drizzle-kit generate --name init_db",
-    "db:migrate": "drizzle-kit migrate",
-    "db:up": "drizzle-kit up",
-    "db:push": "drizzle-kit push",
-    "db:introspect": "drizzle-kit introspect",
-    "db:studio": "drizzle-kit studio"
+    "db:check": "bunx --bun drizzle-kit check",
+    "db:drop": "bunx --bun drizzle-kit drop",
+    "db:generate": "bunx --bun drizzle-kit generate --name init_db",
+    "db:migrate": "bunx --bun drizzle-kit migrate",
+    "db:up": "bunx --bun drizzle-kit up",
+    "db:push": "bunx --bun drizzle-kit push",
+    "db:introspect": "bunx --bun drizzle-kit introspect"
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.1.0",
@@ -32,5 +31,10 @@
     "drizzle-kit": "^0.24.0",
     "husky": "^9.1.5",
     "lint-staged": "^15.2.9"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "drizzle-kit@0.24.0": "patches/drizzle-kit@0.24.0.patch"
+    }
   }
 }

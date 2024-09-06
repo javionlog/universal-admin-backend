@@ -1,0 +1,14 @@
+diff --git a/bin.cjs b/bin.cjs
+index 96235f52f7d0fcaed6abb588107a9fed948bd808..c53274ba80acdc496246cc6899f1a663bd4aa548 100644
+--- a/bin.cjs
++++ b/bin.cjs
+@@ -19353,7 +19353,8 @@ var init_sqliteImports = __esm({
+       const { unregister } = await safeRegister();
+       for (let i2 = 0; i2 < imports.length; i2++) {
+         const it = imports[i2];
+-        const i0 = require(`${it}`);
++        // const i0 = require(`${it}`); <-- does not work with --bun flag
++        const i0 = await import(`${it}`); // <-- this works with --bun
+         const prepared = prepareFromExports3(i0);
+         tables.push(...prepared.tables);
+       }
