@@ -3,14 +3,14 @@ import { integer, text } from 'drizzle-orm/sqlite-core'
 import { t } from 'elysia'
 
 export const baseFields = {
-  status: text('status').default(BOOL_MAP.no),
-  remark: text('remark'),
-  sort: integer('sort').default(0),
-  delFlag: text('del_flag').default(BOOL_MAP.no),
-  createdAt: integer('created_at'),
-  updatedAt: integer('updated_at'),
-  createdBy: text('created_by'),
-  updatedBy: text('updated_by')
+  status: text('status').notNull().default(BOOL_MAP.no),
+  remark: text('remark').notNull().default(''),
+  sort: integer('sort').notNull().default(0),
+  delFlag: text('del_flag').notNull().default(BOOL_MAP.no),
+  createdAt: integer('created_at').notNull().default(Date.now()),
+  updatedAt: integer('updated_at').notNull().default(Date.now()),
+  createdBy: text('created_by').notNull().default(''),
+  updatedBy: text('updated_by').notNull().default('')
 }
 
 export const commonFields = {
@@ -36,7 +36,8 @@ export const baseColumns = {
   }),
   remark: t.Optional(
     t.String({
-      description: baseComments.remark
+      description: baseComments.remark,
+      default: ''
     })
   ),
   sort: t.Number({ description: baseComments.sort, default: 0 }),
@@ -44,8 +45,14 @@ export const baseColumns = {
     description: baseComments.delFlag,
     default: BOOL_MAP.no
   }),
-  createdAt: t.Number({ description: baseComments.createdAt }),
-  updatedAt: t.Number({ description: baseComments.updatedAt }),
-  createdBy: t.String({ description: baseComments.createdBy }),
-  updatedBy: t.String({ description: baseComments.updatedBy })
+  createdAt: t.Number({
+    description: baseComments.createdAt,
+    default: Date.now()
+  }),
+  updatedAt: t.Number({
+    description: baseComments.updatedAt,
+    default: Date.now()
+  }),
+  createdBy: t.String({ description: baseComments.createdBy, default: '' }),
+  updatedBy: t.String({ description: baseComments.updatedBy, default: '' })
 }

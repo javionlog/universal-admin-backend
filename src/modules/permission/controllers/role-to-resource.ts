@@ -1,5 +1,5 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
-import { getResourceByResoureCode } from '@/modules/permission/services/resource'
+import { get as getResource } from '@/modules/permission/services/resource'
 import { getRoleByRoleCode } from '@/modules/permission/services/role'
 import {
   createRoleToResource,
@@ -22,7 +22,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
             set.status = 'Bad Request'
             throw new Error('Can not find role')
           }
-          const resourceResult = await getResourceByResoureCode({
+          const resourceResult = await getResource({
             resourceCode: body.resourceCode
           })
           if (!resourceResult) {

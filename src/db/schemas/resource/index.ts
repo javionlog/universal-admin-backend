@@ -8,20 +8,23 @@ import {
 } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
+export const uniqueKey = 'resourceCode'
+export const primaryKey = 'id'
+
 export const resource = sqliteTable('resource', {
   ...commonFields,
-  parentId: integer('parent_id').default(0),
-  resourceCode: text('resource_code').unique().notNull(),
-  resourceName: text('resource_name').notNull(),
-  resourceType: text('resource_type').notNull(),
-  path: text('path'),
-  activePath: text('active_path'),
-  component: text('component'),
-  icon: text('icon'),
-  isLink: text('is_link').default(BOOL_MAP.no),
-  isCache: text('is_cache').default(BOOL_MAP.no),
-  isAffix: text('is_affix').default(BOOL_MAP.no),
-  isHide: text('is_hide').default(BOOL_MAP.no)
+  parentId: integer('parent_id').notNull().default(0),
+  resourceCode: text('resource_code').unique().notNull().default(''),
+  resourceName: text('resource_name').notNull().default(''),
+  resourceType: text('resource_type').notNull().default(RESOURCE_TYPE.menu),
+  path: text('path').notNull().default(''),
+  activePath: text('active_path').notNull().default(''),
+  component: text('component').notNull().default(''),
+  icon: text('icon').notNull().default(''),
+  isLink: text('is_link').notNull().default(BOOL_MAP.no),
+  isCache: text('is_cache').notNull().default(BOOL_MAP.no),
+  isAffix: text('is_affix').notNull().default(BOOL_MAP.no),
+  isHide: text('is_hide').notNull().default(BOOL_MAP.no)
 })
 
 export const schemaComments = {
@@ -52,13 +55,14 @@ const insertColumns: Refine<typeof resource, 'insert'> = {
       t.Literal(RESOURCE_TYPE.element)
     ],
     {
-      description: schemaComments.resourceType
+      description: schemaComments.resourceType,
+      default: RESOURCE_TYPE.menu
     }
   ),
-  path: t.String({ description: schemaComments.path }),
-  activePath: t.String({ description: schemaComments.activePath }),
-  component: t.String({ description: schemaComments.component }),
-  icon: t.String({ description: schemaComments.icon }),
+  path: t.String({ description: schemaComments.path, default: '' }),
+  activePath: t.String({ description: schemaComments.activePath, default: '' }),
+  component: t.String({ description: schemaComments.component, default: '' }),
+  icon: t.String({ description: schemaComments.icon, default: '' }),
   isLink: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
     description: schemaComments.isLink,
     default: BOOL_MAP.no

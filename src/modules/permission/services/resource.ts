@@ -2,81 +2,70 @@ import { db } from '@/db/index'
 import {
   type InsertParams,
   type SelectParams,
-  resource
+  resource as tableSchema,
+  uniqueKey
 } from '@/db/schemas/resource/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, getTableColumns, gte, lte } from 'drizzle-orm'
+import { count, eq, gte, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
-export const createResource = async (params: InsertParams) => {
+export const create = async (params: InsertParams) => {
   const result = await db
-    .insert(resource)
+    .insert(tableSchema)
     .values({
       ...params,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
-    .returning({ resourceCode: resource.resourceCode })
+    .returning()
     .get()
   return result
 }
 
-export const updateResource = async (params: InsertParams) => {
-  const { resourceCode, createdAt, createdBy, ...rest } = params
+export const update = async (params: SelectParams) => {
   const result = await db
-    .update(resource)
-    .set(rest)
-    .where(eq(resource.resourceCode, params.resourceCode))
-    .returning({ resourceCode: resource.resourceCode })
+    .update(tableSchema)
+    .set(params)
+    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .returning()
     .get()
   return result
 }
 
-export const deleteResource = async (
-  params: Pick<InsertParams, 'resourceCode'>
-) => {
+export const remove = async (params: Pick<SelectParams, typeof uniqueKey>) => {
   const result = await db
-    .delete(resource)
-    .where(eq(resource.resourceCode, params.resourceCode))
-    .returning({ resourceCode: resource.resourceCode })
+    .delete(tableSchema)
+    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .returning()
     .get()
-  return result ?? { resourceCode: '' }
+  return result
 }
 
-export const getResourceById = async (params: Pick<SelectParams, 'id'>) => {
+export const get = async (params: Pick<SelectParams, typeof uniqueKey>) => {
   const result = await db
     .select()
-    .from(resource)
-    .where(eq(resource.id, params.id))
+    .from(tableSchema)
+    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
     .get()
   return result
 }
 
-export const getResourceByResoureCode = async (
-  params: Pick<SelectParams, 'resourceCode'>
-) => {
-  const result = await db
-    .select()
-    .from(resource)
-    .where(eq(resource.resourceCode, params.resourceCode))
-    .get()
-  return result
-}
-
-export const findResources = async (params: Partial<FindParams>) => {
-  const columns = getTableColumns(resource)
+export const find = async (params: Partial<FindParams>) => {
   const {
     pageIndex = DEFAULT_PAGE_INDEXX,
     pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
-  const recordsDynamic = db.select(columns).from(resource).$dynamic()
-  const totalDynamic = db.select({ value: count() }).from(resource).$dynamic()
+  const recordsDynamic = db.select().from(tableSchema).$dynamic()
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(tableSchema)
+    .$dynamic()
 
   for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
@@ -85,28 +74,28 @@ export const findResources = async (params: Partial<FindParams>) => {
     if (val) {
       switch (key) {
         case 'createdFrom': {
-          recordsDynamic.where(gte(resource.createdAt, val as number))
-          totalDynamic.where(gte(resource.createdAt, val as number))
+          recordsDynamic.where(gte(tableSchema.createdAt, val as number))
+          totalDynamic.where(gte(tableSchema.createdAt, val as number))
           break
         }
         case 'createdTo': {
-          recordsDynamic.where(lte(resource.createdAt, val as number))
-          totalDynamic.where(lte(resource.createdAt, val as number))
+          recordsDynamic.where(lte(tableSchema.createdAt, val as number))
+          totalDynamic.where(lte(tableSchema.createdAt, val as number))
           break
         }
         case 'updatedFrom': {
-          recordsDynamic.where(gte(resource.updatedAt, val as number))
-          totalDynamic.where(gte(resource.updatedAt, val as number))
+          recordsDynamic.where(gte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(gte(tableSchema.updatedAt, val as number))
           break
         }
         case 'updatedTo': {
-          recordsDynamic.where(lte(resource.updatedAt, val as number))
-          totalDynamic.where(lte(resource.updatedAt, val as number))
+          recordsDynamic.where(lte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(lte(tableSchema.updatedAt, val as number))
           break
         }
         default: {
-          recordsDynamic.where(eq(resource[key], val))
-          totalDynamic.where(eq(resource[key], val))
+          recordsDynamic.where(eq(tableSchema[key], val))
+          totalDynamic.where(eq(tableSchema[key], val))
           break
         }
       }

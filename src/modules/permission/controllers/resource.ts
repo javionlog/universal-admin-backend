@@ -1,14 +1,22 @@
-import { insertSchema, selectSchema } from '@/db/schemas/resource/index'
 import {
-  createResource,
-  deleteResource,
-  findResources,
-  getResourceByResoureCode,
-  updateResource
+  insertSchema,
+  selectSchema,
+  uniqueKey
+} from '@/db/schemas/resource/index'
+import {
+  create,
+  find,
+  get,
+  remove,
+  update
 } from '@/modules/permission/services/resource'
 import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
+
+const notFoundMessage = 'Can not find resource'
+const summaryPrefix = '资源'
+const tags = ['Permission']
 
 export const ResourceController = (app: typeof GuardController) => {
   return app.group('/resource', ins => {
@@ -16,80 +24,84 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/create',
         async ({ body, user }) => {
-          const result = await createResource({
+          const result = await create({
             ...body,
             createdBy: user.username
           })
           return result
         },
         {
-          detail: { summary: '资源创建' },
-          tags: ['Permission'],
+          tags,
+          detail: { summary: `${summaryPrefix}创建` },
           body: insertSchema,
           response: {
-            200: t.Pick(selectSchema, ['resourceCode'])
+            200: selectSchema
           }
         }
       )
       .post(
         '/update',
         async ({ set, body, user }) => {
-          const row = await getResourceByResoureCode(body)
+          const row = await get(body)
           if (!row) {
             set.status = 'Bad Request'
-            throw new Error('Can not find role')
+            throw new Error(notFoundMessage)
           }
-          const result = await updateResource({
+          const result = await update({
             ...body,
             updatedBy: user.username
           })
           return result
         },
         {
-          detail: { summary: '资源更新' },
-          tags: ['Permission'],
-          body: insertSchema,
+          tags,
+          detail: { summary: `${summaryPrefix}更新` },
+          body: selectSchema,
           response: {
-            200: t.Pick(selectSchema, ['resourceCode'])
+            200: selectSchema
           }
         }
       )
       .post(
-        '/delete',
+        '/remove',
         async ({ set, body }) => {
-          const row = await getResourceByResoureCode(body)
+          const row = await get(body)
           if (!row) {
+            set.status = 'Bad Request'
+            throw new Error(notFoundMessage)
+          }
+          const result = await remove({
+            resourceCode: body.resourceCode
+          })
+          if (!result) {
             set.status = 'Bad Request'
             throw new Error('Can not find resource')
           }
-          const result = await deleteResource({
-            resourceCode: body.resourceCode
-          })
           return result
         },
         {
-          detail: { summary: '资源删除' },
-          tags: ['Permission'],
-          body: t.Pick(insertSchema, ['resourceCode']),
+          tags,
+          detail: { summary: `${summaryPrefix}删除` },
+          body: t.Pick(selectSchema, [uniqueKey]),
           response: {
-            200: t.Pick(selectSchema, ['resourceCode'])
+            200: selectSchema
           }
         }
       )
       .post(
         '/get',
         async ({ set, body }) => {
-          const role = await getResourceByResoureCode(body)
+          const role = await get(body)
           if (!role) {
             set.status = 'Bad Request'
-            throw new Error('Can not find resource')
+            throw new Error(notFoundMessage)
           }
           return role
         },
         {
-          detail: { summary: '资源信息' },
-          tags: ['Permission'],
-          body: t.Pick(selectSchema, ['resourceCode']),
+          tags,
+          detail: { summary: `${summaryPrefix}信息` },
+          body: t.Pick(selectSchema, [uniqueKey]),
           response: {
             200: selectSchema
           }
@@ -98,14 +110,14 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/find',
         async ({ body }) => {
-          const result = await findResources(body)
+          const result = await find(body)
           return result
         },
         {
-          detail: { summary: '资源列表' },
-          tags: ['Permission'],
+          tags,
+          detail: { summary: `${summaryPrefix}列表` },
           body: t.Composite([
-            t.Partial(t.Omit(selectSchema, ['id', 'createdAt', 'updatedAt'])),
+            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
             PageSchema,
             TimeRangeSchema
           ]),
