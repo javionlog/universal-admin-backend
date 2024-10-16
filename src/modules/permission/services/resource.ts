@@ -5,10 +5,12 @@ import {
   resource as tableSchema,
   uniqueKey
 } from '@/db/schemas/resource/index'
+import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
+import { isEmpty, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, gte, lte } from 'drizzle-orm'
 
@@ -28,25 +30,35 @@ export const create = async (params: InsertParams) => {
 }
 
 export const update = async (params: SelectParams) => {
+  const restParams = omitObject(params, [primaryKey])
   const result = await db
     .update(tableSchema)
-    .set(params)
-    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .set(restParams)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
     .returning()
     .get()
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, typeof uniqueKey>) => {
+export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
   const result = await db
     .delete(tableSchema)
-    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
     .returning()
     .get()
   return result
 }
 
-export const get = async (params: Pick<SelectParams, typeof uniqueKey>) => {
+export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
+  const result = await db
+    .select()
+    .from(tableSchema)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .get()
+  return result
+}
+
+export const gain = async (params: Pick<SelectParams, typeof uniqueKey>) => {
   const result = await db
     .select()
     .from(tableSchema)
@@ -55,7 +67,10 @@ export const get = async (params: Pick<SelectParams, typeof uniqueKey>) => {
   return result
 }
 
-export const find = async (params: Partial<FindParams>) => {
+export const find = async (
+  params: Partial<FindParams>,
+  returnAll?: boolean
+) => {
   const {
     pageIndex = DEFAULT_PAGE_INDEXX,
     pageSize = DEFAULT_PAGE_SIZE,
@@ -71,7 +86,7 @@ export const find = async (params: Partial<FindParams>) => {
     type Key = keyof typeof restParams
     const key = k as Key
     const val = restParams[key as Key]
-    if (val) {
+    if (!isEmpty(val)) {
       switch (key) {
         case 'createdFrom': {
           recordsDynamic.where(gte(tableSchema.createdAt, val as number))
@@ -102,10 +117,12 @@ export const find = async (params: Partial<FindParams>) => {
     }
   }
 
-  const records = await recordsDynamic
-    .offset((pageIndex - 1) * pageSize)
-    .limit(pageSize)
-    .all()
+  const records = returnAll
+    ? await recordsDynamic.all()
+    : await recordsDynamic
+        .offset((pageIndex - 1) * pageSize)
+        .limit(pageSize)
+        .all()
   const total = (await totalDynamic)[0]?.value ?? 0
 
   return {

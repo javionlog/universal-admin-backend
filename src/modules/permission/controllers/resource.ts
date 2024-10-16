@@ -1,8 +1,6 @@
-import {
-  insertSchema,
-  selectSchema,
-  uniqueKey
-} from '@/db/schemas/resource/index'
+import { insertSchema, selectSchema } from '@/db/schemas/resource/index'
+import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
+import { primaryKey } from '@/db/shared/index'
 import {
   create,
   find,
@@ -26,7 +24,8 @@ export const ResourceController = (app: typeof GuardController) => {
         async ({ body, user }) => {
           const result = await create({
             ...body,
-            createdBy: user.username
+            createdBy: user[userUniqueKey],
+            updatedBy: user[userUniqueKey]
           })
           return result
         },
@@ -41,15 +40,10 @@ export const ResourceController = (app: typeof GuardController) => {
       )
       .post(
         '/update',
-        async ({ set, body, user }) => {
-          const row = await get(body)
-          if (!row) {
-            set.status = 'Bad Request'
-            throw new Error(notFoundMessage)
-          }
+        async ({ body, user }) => {
           const result = await update({
             ...body,
-            updatedBy: user.username
+            updatedBy: user[userUniqueKey]
           })
           return result
         },
@@ -65,24 +59,19 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/remove',
         async ({ set, body }) => {
-          const row = await get(body)
-          if (!row) {
-            set.status = 'Bad Request'
-            throw new Error(notFoundMessage)
-          }
           const result = await remove({
-            resourceCode: body.resourceCode
+            [primaryKey]: body[primaryKey]
           })
           if (!result) {
             set.status = 'Bad Request'
-            throw new Error('Can not find resource')
+            throw new Error(notFoundMessage)
           }
           return result
         },
         {
           tags,
           detail: { summary: `${summaryPrefix}删除` },
-          body: t.Pick(selectSchema, [uniqueKey]),
+          body: t.Pick(selectSchema, [primaryKey]),
           response: {
             200: selectSchema
           }
@@ -91,17 +80,17 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/get',
         async ({ set, body }) => {
-          const role = await get(body)
-          if (!role) {
+          const result = await get(body)
+          if (!result) {
             set.status = 'Bad Request'
             throw new Error(notFoundMessage)
           }
-          return role
+          return result
         },
         {
           tags,
           detail: { summary: `${summaryPrefix}信息` },
-          body: t.Pick(selectSchema, [uniqueKey]),
+          body: t.Pick(selectSchema, [primaryKey]),
           response: {
             200: selectSchema
           }
@@ -118,7 +107,28 @@ export const ResourceController = (app: typeof GuardController) => {
           detail: { summary: `${summaryPrefix}列表` },
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
-            PageSchema,
+            TimeRangeSchema,
+            PageSchema
+          ]),
+          response: {
+            200: t.Object({
+              records: t.Array(selectSchema),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAll',
+        async ({ body }) => {
+          const result = await find(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}全部` },
+          body: t.Composite([
+            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
             TimeRangeSchema
           ]),
           response: {

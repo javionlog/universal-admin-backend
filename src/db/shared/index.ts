@@ -4,18 +4,20 @@ import { t } from 'elysia'
 
 export const baseFields = {
   status: text('status').notNull().default(BOOL_MAP.no),
-  remark: text('remark').notNull().default(''),
+  remark: text('remark'),
   sort: integer('sort').notNull().default(0),
   delFlag: text('del_flag').notNull().default(BOOL_MAP.no),
   createdAt: integer('created_at').notNull().default(Date.now()),
   updatedAt: integer('updated_at').notNull().default(Date.now()),
-  createdBy: text('created_by').notNull().default(''),
-  updatedBy: text('updated_by').notNull().default('')
+  createdBy: text('created_by').notNull(),
+  updatedBy: text('updated_by').notNull()
 }
+
+export const primaryKey = 'id'
 
 export const commonFields = {
   ...baseFields,
-  id: integer('id').primaryKey({ autoIncrement: true })
+  [primaryKey]: integer('id').primaryKey({ autoIncrement: true })
 }
 
 export const baseComments = {
@@ -36,8 +38,7 @@ export const baseColumns = {
   }),
   remark: t.Optional(
     t.String({
-      description: baseComments.remark,
-      default: ''
+      description: baseComments.remark
     })
   ),
   sort: t.Number({ description: baseComments.sort, default: 0 }),
@@ -53,6 +54,6 @@ export const baseColumns = {
     description: baseComments.updatedAt,
     default: Date.now()
   }),
-  createdBy: t.String({ description: baseComments.createdBy, default: '' }),
-  updatedBy: t.String({ description: baseComments.updatedBy, default: '' })
+  createdBy: t.String({ description: baseComments.createdBy }),
+  updatedBy: t.String({ description: baseComments.updatedBy })
 }

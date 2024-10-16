@@ -9,28 +9,27 @@ import {
 import { type Static, t } from 'elysia'
 
 export const uniqueKey = 'resourceCode'
-export const primaryKey = 'id'
 
 export const resource = sqliteTable('resource', {
   ...commonFields,
-  parentId: integer('parent_id').notNull().default(0),
-  resourceCode: text('resource_code').unique().notNull().default(''),
-  resourceName: text('resource_name').notNull().default(''),
-  resourceType: text('resource_type').notNull().default(RESOURCE_TYPE.menu),
-  path: text('path').notNull().default(''),
-  activePath: text('active_path').notNull().default(''),
-  component: text('component').notNull().default(''),
-  icon: text('icon').notNull().default(''),
-  isLink: text('is_link').notNull().default(BOOL_MAP.no),
-  isCache: text('is_cache').notNull().default(BOOL_MAP.no),
-  isAffix: text('is_affix').notNull().default(BOOL_MAP.no),
-  isHide: text('is_hide').notNull().default(BOOL_MAP.no)
+  parentId: integer('parent_id').notNull(),
+  [uniqueKey]: text('resource_code').unique().notNull(),
+  resourceName: text('resource_name').notNull(),
+  resourceType: text('resource_type').notNull(),
+  path: text('path').notNull(),
+  activePath: text('active_path').notNull(),
+  component: text('component').notNull(),
+  icon: text('icon').notNull(),
+  isLink: text('is_link').notNull(),
+  isCache: text('is_cache').notNull(),
+  isAffix: text('is_affix').notNull(),
+  isHide: text('is_hide').notNull()
 })
 
 export const schemaComments = {
   ...baseComments,
   parentId: '父 ID',
-  resourceCode: '资源编码',
+  [uniqueKey]: '资源编码',
   resourceName: '资源名称',
   resourceType: '资源类型，菜单(Menu)/页面(Page)/元素(Element)',
   path: '页面路径',
@@ -46,7 +45,7 @@ export const schemaComments = {
 const insertColumns: Refine<typeof resource, 'insert'> = {
   ...baseColumns,
   parentId: t.Number({ description: schemaComments.parentId, default: 0 }),
-  resourceCode: t.String({ description: schemaComments.resourceCode }),
+  [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
   resourceName: t.String({ description: schemaComments.resourceName }),
   resourceType: t.Union(
     [

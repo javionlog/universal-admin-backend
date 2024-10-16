@@ -2,90 +2,102 @@ import { db } from '@/db/index'
 import {
   type InsertParams,
   type SelectParams,
-  userToRole
+  userToRole as tableSchema
 } from '@/db/schemas/user-to-role/index'
+import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
+import { isEmpty } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & TimeRangeParams & PageParams
 
-export const createUserToRole = async (params: InsertParams) => {
+export const create = async (params: InsertParams) => {
   const result = await db
-    .insert(userToRole)
+    .insert(tableSchema)
     .values({
       ...params,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
-    .returning({ username: userToRole.username, roleCode: userToRole.roleCode })
+    .returning()
     .get()
   return result
 }
 
-export const deleteUserToRoleByUsername = async (
-  params: Pick<InsertParams, 'username'>
-) => {
+export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
   const result = await db
-    .delete(userToRole)
-    .where(eq(userToRole.username, params.username))
-    .returning({ username: userToRole.username, roleCode: userToRole.roleCode })
+    .delete(tableSchema)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .returning()
     .get()
-  return result ?? { username: '', roleCode: '' }
+  return result
 }
 
-export const findUserToRoles = async (
+export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
+  const result = await db
+    .select()
+    .from(tableSchema)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .get()
+  return result
+}
+
+export const find = async (
   params: Partial<FindParams>,
-  getAll?: boolean
+  returnAll?: boolean
 ) => {
-  const columns = getTableColumns(userToRole)
+  const columns = getTableColumns(tableSchema)
   const {
     pageIndex = DEFAULT_PAGE_INDEXX,
     pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
-  const recordsDynamic = db.select(columns).from(userToRole).$dynamic()
-  const totalDynamic = db.select({ value: count() }).from(userToRole).$dynamic()
+  const recordsDynamic = db.select(columns).from(tableSchema).$dynamic()
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(tableSchema)
+    .$dynamic()
 
   for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
     const key = k as Key
     const val = restParams[key as Key]
-    if (val) {
+    if (!isEmpty(val)) {
       switch (key) {
         case 'createdFrom': {
-          recordsDynamic.where(gte(userToRole.createdAt, val as number))
-          totalDynamic.where(gte(userToRole.createdAt, val as number))
+          recordsDynamic.where(gte(tableSchema.createdAt, val as number))
+          totalDynamic.where(gte(tableSchema.createdAt, val as number))
           break
         }
         case 'createdTo': {
-          recordsDynamic.where(lte(userToRole.createdAt, val as number))
-          totalDynamic.where(lte(userToRole.createdAt, val as number))
+          recordsDynamic.where(lte(tableSchema.createdAt, val as number))
+          totalDynamic.where(lte(tableSchema.createdAt, val as number))
           break
         }
         case 'updatedFrom': {
-          recordsDynamic.where(gte(userToRole.updatedAt, val as number))
-          totalDynamic.where(gte(userToRole.updatedAt, val as number))
+          recordsDynamic.where(gte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(gte(tableSchema.updatedAt, val as number))
           break
         }
         case 'updatedTo': {
-          recordsDynamic.where(lte(userToRole.updatedAt, val as number))
-          totalDynamic.where(lte(userToRole.updatedAt, val as number))
+          recordsDynamic.where(lte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(lte(tableSchema.updatedAt, val as number))
           break
         }
         default: {
-          recordsDynamic.where(like(userToRole[key], `%${val}%`))
-          totalDynamic.where(like(userToRole[key], `%${val}%`))
+          recordsDynamic.where(like(tableSchema[key], `%${val}%`))
+          totalDynamic.where(like(tableSchema[key], `%${val}%`))
           break
         }
       }
     }
   }
 
-  const records = getAll
+  const records = returnAll
     ? await recordsDynamic.all()
     : await recordsDynamic
         .offset((pageIndex - 1) * pageSize)

@@ -1,58 +1,108 @@
-import { insertSchema, selectSchema } from '@/db/schemas/user/index'
+import { insertSchema, selectSchema, uniqueKey } from '@/db/schemas/user/index'
+import { primaryKey } from '@/db/shared/index'
 import { GuardController } from '@/modules/shared/controllers/index'
 import {
-  findUsers,
-  getUserByUsername,
-  updateUser
+  create,
+  find,
+  get,
+  remove,
+  update
 } from '@/modules/user/services/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
+import { password } from 'bun'
 import { t } from 'elysia'
+
+const notFoundMessage = 'Can not find User'
+const summaryPrefix = '用户'
+const tags = ['User']
 
 export const Controller = GuardController.group('/user', app => {
   return app
     .post(
-      '/get',
-      async ({ set, body }) => {
-        const result = await getUserByUsername(body)
-        if (!result) {
-          set.status = 'Bad Request'
-          throw new Error('Can not find user')
-        }
+      '/create',
+      async ({ body }) => {
+        const hashPassword = await password.hash(body.password, {
+          algorithm: 'bcrypt',
+          cost: 10
+        })
+        const result = await create({
+          ...body,
+          password: hashPassword,
+          createdBy: body[uniqueKey],
+          updatedBy: body[uniqueKey]
+        })
         return result
       },
       {
-        detail: { summary: '用户信息' },
-        tags: ['User'],
-        body: t.Pick(selectSchema, ['username']),
+        tags,
+        detail: { summary: `${summaryPrefix}创建` },
+        body: insertSchema,
+        response: {
+          200: t.Omit(insertSchema, ['password'])
+        }
+      }
+    )
+    .post(
+      '/update',
+      async ({ body, user }) => {
+        const result = await update({ ...body, updatedBy: user[uniqueKey] })
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}更新` },
+        body: selectSchema,
         response: {
           200: t.Omit(selectSchema, ['password'])
         }
       }
     )
     .post(
-      '/update',
-      async ({ set, body, user }) => {
-        const row = await getUserByUsername(body)
-        if (!row) {
+      '/remove',
+      async ({ set, body }) => {
+        const result = await remove({
+          [primaryKey]: body[primaryKey]
+        })
+        if (!result) {
           set.status = 'Bad Request'
-          throw new Error('Can not find user')
+          throw new Error(notFoundMessage)
         }
-        const result = await updateUser({ ...body, updatedBy: user.username })
         return result
       },
       {
-        detail: { summary: '用户更新' },
-        tags: ['User'],
-        body: t.Omit(insertSchema, ['password']),
+        tags,
+        detail: { summary: `${summaryPrefix}删除` },
+        body: t.Pick(selectSchema, [primaryKey]),
         response: {
-          200: t.Pick(selectSchema, ['username'])
+          200: t.Omit(selectSchema, ['password'])
+        }
+      }
+    )
+    .post(
+      '/get',
+      async ({ set, body }) => {
+        const result = await get({
+          [primaryKey]: body[primaryKey]
+        })
+        if (!result) {
+          set.status = 'Bad Request'
+          throw new Error(notFoundMessage)
+        }
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}信息` },
+        body: t.Pick(selectSchema, [primaryKey]),
+        response: {
+          200: t.Omit(selectSchema, ['password'])
         }
       }
     )
     .post(
       '/find',
       async ({ body }) => {
-        const result = await findUsers(body)
+        const result = await find(body)
         return result
       },
       {

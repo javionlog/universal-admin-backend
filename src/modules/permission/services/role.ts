@@ -2,119 +2,127 @@ import { db } from '@/db/index'
 import {
   type InsertParams,
   type SelectParams,
-  role
+  role as tableSchema,
+  uniqueKey
 } from '@/db/schemas/role/index'
+import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
+import { isEmpty, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, getTableColumns, gte, lte } from 'drizzle-orm'
+import { count, eq, gte, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
-export const createRole = async (params: InsertParams) => {
+export const create = async (params: InsertParams) => {
   const result = await db
-    .insert(role)
+    .insert(tableSchema)
     .values({
       ...params,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
-    .returning({ roleCode: role.roleCode })
+    .returning()
     .get()
   return result
 }
 
-export const updateRole = async (params: InsertParams) => {
-  const { roleCode, createdAt, createdBy, ...rest } = params
+export const update = async (params: SelectParams) => {
+  const restParams = omitObject(params, [primaryKey])
   const result = await db
-    .update(role)
-    .set(rest)
-    .where(eq(role.roleCode, params.roleCode))
-    .returning({ roleCode: role.roleCode })
+    .update(tableSchema)
+    .set(restParams)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .returning()
     .get()
   return result
 }
 
-export const deleteRole = async (params: Pick<InsertParams, 'roleCode'>) => {
+export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
   const result = await db
-    .delete(role)
-    .where(eq(role.roleCode, params.roleCode))
-    .returning({ roleCode: role.roleCode })
+    .delete(tableSchema)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .returning()
     .get()
-  return result ?? { roleCode: '' }
+  return result
 }
 
-export const getRoleById = async (params: Pick<SelectParams, 'id'>) => {
+export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
   const result = await db
     .select()
-    .from(role)
-    .where(eq(role.id, params.id))
+    .from(tableSchema)
+    .where(eq(tableSchema[primaryKey], params[primaryKey]))
     .get()
   return result
 }
 
-export const getRoleByRoleCode = async (
-  params: Pick<SelectParams, 'roleCode'>
+export const gain = async (params: Pick<SelectParams, typeof uniqueKey>) => {
+  const result = await db
+    .select()
+    .from(tableSchema)
+    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .get()
+  return result
+}
+
+export const find = async (
+  params: Partial<FindParams>,
+  returnAll?: boolean
 ) => {
-  const result = await db
-    .select()
-    .from(role)
-    .where(eq(role.roleCode, params.roleCode))
-    .get()
-  return result
-}
-
-export const findRoles = async (params: Partial<FindParams>) => {
-  const columns = getTableColumns(role)
   const {
     pageIndex = DEFAULT_PAGE_INDEXX,
     pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
-  const recordsDynamic = db.select(columns).from(role).$dynamic()
-  const totalDynamic = db.select({ value: count() }).from(role).$dynamic()
+  const recordsDynamic = db.select().from(tableSchema).$dynamic()
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(tableSchema)
+    .$dynamic()
 
   for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
     const key = k as Key
     const val = restParams[key as Key]
-    if (val) {
+    if (!isEmpty(val)) {
       switch (key) {
         case 'createdFrom': {
-          recordsDynamic.where(gte(role.createdAt, val as number))
-          totalDynamic.where(gte(role.createdAt, val as number))
+          recordsDynamic.where(gte(tableSchema.createdAt, val as number))
+          totalDynamic.where(gte(tableSchema.createdAt, val as number))
           break
         }
         case 'createdTo': {
-          recordsDynamic.where(lte(role.createdAt, val as number))
-          totalDynamic.where(lte(role.createdAt, val as number))
+          recordsDynamic.where(lte(tableSchema.createdAt, val as number))
+          totalDynamic.where(lte(tableSchema.createdAt, val as number))
           break
         }
         case 'updatedFrom': {
-          recordsDynamic.where(gte(role.updatedAt, val as number))
-          totalDynamic.where(gte(role.updatedAt, val as number))
+          recordsDynamic.where(gte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(gte(tableSchema.updatedAt, val as number))
           break
         }
         case 'updatedTo': {
-          recordsDynamic.where(lte(role.updatedAt, val as number))
-          totalDynamic.where(lte(role.updatedAt, val as number))
+          recordsDynamic.where(lte(tableSchema.updatedAt, val as number))
+          totalDynamic.where(lte(tableSchema.updatedAt, val as number))
           break
         }
         default: {
-          recordsDynamic.where(eq(role[key], val))
-          totalDynamic.where(eq(role[key], val))
+          recordsDynamic.where(eq(tableSchema[key], val))
+          totalDynamic.where(eq(tableSchema[key], val))
           break
         }
       }
     }
   }
 
-  const records = await recordsDynamic
-    .offset((pageIndex - 1) * pageSize)
-    .limit(pageSize)
-    .all()
+  const records = returnAll
+    ? await recordsDynamic.all()
+    : await recordsDynamic
+        .offset((pageIndex - 1) * pageSize)
+        .limit(pageSize)
+        .all()
   const total = (await totalDynamic)[0]?.value ?? 0
 
   return {

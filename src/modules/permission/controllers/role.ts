@@ -1,14 +1,20 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role/index'
+import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
+import { primaryKey } from '@/db/shared/index'
 import {
-  createRole,
-  deleteRole,
-  findRoles,
-  getRoleByRoleCode,
-  updateRole
+  create,
+  find,
+  get,
+  remove,
+  update
 } from '@/modules/permission/services/role'
 import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
+
+const notFoundMessage = 'Can not find role'
+const summaryPrefix = '角色'
+const tags = ['Permission']
 
 export const RoleController = (app: typeof GuardController) => {
   return app.group('/role', ins => {
@@ -16,72 +22,73 @@ export const RoleController = (app: typeof GuardController) => {
       .post(
         '/create',
         async ({ body, user }) => {
-          const role = await createRole({ ...body, createdBy: user.username })
-          return role
+          const result = await create({
+            ...body,
+            createdBy: user[userUniqueKey],
+            updatedBy: user[userUniqueKey]
+          })
+          return result
         },
         {
-          detail: { summary: '角色创建' },
-          tags: ['Permission'],
+          tags,
+          detail: { summary: `${summaryPrefix}创建` },
           body: insertSchema,
           response: {
-            200: t.Pick(selectSchema, ['roleCode'])
+            200: selectSchema
           }
         }
       )
       .post(
         '/update',
-        async ({ set, body, user }) => {
-          const row = await getRoleByRoleCode(body)
-          if (!row) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find role')
-          }
-          const result = await updateRole({ ...body, updatedBy: user.username })
+        async ({ body, user }) => {
+          const result = await update({
+            ...body,
+            updatedBy: user[userUniqueKey]
+          })
           return result
         },
         {
-          detail: { summary: '角色更新' },
-          tags: ['Permission'],
-          body: insertSchema,
+          tags,
+          detail: { summary: `${summaryPrefix}更新` },
+          body: selectSchema,
           response: {
-            200: t.Pick(selectSchema, ['roleCode'])
+            200: selectSchema
           }
         }
       )
       .post(
-        '/delete',
+        '/remove',
         async ({ set, body }) => {
-          const row = await getRoleByRoleCode(body)
-          if (!row) {
+          const result = await remove({ [primaryKey]: body[primaryKey] })
+          if (!result) {
             set.status = 'Bad Request'
-            throw new Error('Can not find role')
+            throw new Error(notFoundMessage)
           }
-          const result = await deleteRole({ roleCode: body.roleCode })
           return result
         },
         {
-          detail: { summary: '角色删除' },
-          tags: ['Permission'],
-          body: t.Pick(insertSchema, ['roleCode']),
+          tags,
+          detail: { summary: `${summaryPrefix}删除` },
+          body: t.Pick(selectSchema, [primaryKey]),
           response: {
-            200: t.Pick(selectSchema, ['roleCode'])
+            200: selectSchema
           }
         }
       )
       .post(
         '/get',
         async ({ set, body }) => {
-          const role = await getRoleByRoleCode(body)
-          if (!role) {
+          const result = await get(body)
+          if (!result) {
             set.status = 'Bad Request'
-            throw new Error('Can not find role')
+            throw new Error(notFoundMessage)
           }
-          return role
+          return result
         },
         {
-          detail: { summary: '角色信息' },
-          tags: ['Permission'],
-          body: t.Pick(selectSchema, ['roleCode']),
+          tags,
+          detail: { summary: `${summaryPrefix}信息` },
+          body: t.Pick(selectSchema, [primaryKey]),
           response: {
             200: selectSchema
           }
@@ -90,7 +97,7 @@ export const RoleController = (app: typeof GuardController) => {
       .post(
         '/find',
         async ({ body }) => {
-          const result = await findRoles(body)
+          const result = await find(body)
           return result
         },
         {

@@ -1,15 +1,17 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
 import {
   insertSchema as insertUserSchema,
-  selectSchema as selectUserSchema
+  selectSchema as selectUserSchema,
+  uniqueKey as userUniqueKey
 } from '@/db/schemas/user/index'
 import { authDerive } from '@/modules/auth/plugins/index'
 import { BaseController } from '@/modules/shared/controllers/index'
 import { getExpTimestamp } from '@/modules/shared/libs/index'
 import {
-  createUser,
-  getSensitiveUserByUsername,
-  getUserByUsername
+  create as createUser,
+  gainSensitive as getSensitiveUser,
+  gain as getUser,
+  update as updateUser
 } from '@/modules/user/services/index'
 import { password } from 'bun'
 import { t } from 'elysia'
@@ -18,9 +20,15 @@ export const Controller = BaseController.group('/auth', app => {
   return app
     .post(
       '/signIn',
-      async ({ body, set, jwt, cookie: { accessToken, refreshToken } }) => {
-        const user = await getSensitiveUserByUsername({
-          username: body.username
+      async ({
+        body,
+        set,
+        accessJwt,
+        refreshJwt,
+        cookie: { accessToken, refreshToken }
+      }) => {
+        const user = await getSensitiveUser({
+          [userUniqueKey]: body[userUniqueKey]
         })
         const invalidUserMessage =
           'The username or password you entered is incorrect'
@@ -38,9 +46,15 @@ export const Controller = BaseController.group('/auth', app => {
           throw new Error(invalidUserMessage)
         }
 
+        try {
+          updateUser({ ...user, lastSignInAt: Date.now() })
+        } catch {
+          // print log
+        }
+
         // create access token
-        const accessJwtToken = await jwt.sign({
-          sub: user.username,
+        const accessJwtToken = await accessJwt.sign({
+          sub: user[userUniqueKey],
           exp: getExpTimestamp(ACCESS_TOKEN_EXP)
         })
         accessToken?.set({
@@ -51,8 +65,8 @@ export const Controller = BaseController.group('/auth', app => {
         })
 
         // create refresh token
-        const refreshJwtToken = await jwt.sign({
-          sub: user.username,
+        const refreshJwtToken = await refreshJwt.sign({
+          sub: user[userUniqueKey],
           exp: getExpTimestamp(REFRESH_TOKEN_EXP)
         })
         refreshToken?.set({
@@ -62,7 +76,7 @@ export const Controller = BaseController.group('/auth', app => {
           path: '/'
         })
         return {
-          username: user.username,
+          [userUniqueKey]: user[userUniqueKey],
           accessToken: accessJwtToken,
           refreshToken: refreshJwtToken
         }
@@ -70,10 +84,10 @@ export const Controller = BaseController.group('/auth', app => {
       {
         detail: { summary: '用户登录' },
         tags: ['Auth'],
-        body: t.Pick(selectUserSchema, ['username', 'password']),
+        body: t.Pick(selectUserSchema, [userUniqueKey, 'password']),
         response: {
           200: t.Composite([
-            t.Pick(selectUserSchema, ['username']),
+            t.Pick(selectUserSchema, [userUniqueKey]),
             t.Object({
               accessToken: t.String(),
               refreshToken: t.String()
@@ -89,49 +103,59 @@ export const Controller = BaseController.group('/auth', app => {
           algorithm: 'bcrypt',
           cost: 10
         })
-        const user = await createUser({ ...body, password: hashPassword })
-        return {
-          username: user.username
-        }
+        const result = await createUser({
+          ...body,
+          password: hashPassword,
+          createdBy: body[userUniqueKey],
+          updatedBy: body[userUniqueKey]
+        })
+        return result
       },
       {
         detail: { summary: '用户注册' },
         tags: ['Auth'],
         body: insertUserSchema,
         response: {
-          200: t.Pick(selectUserSchema, ['username'])
+          200: t.Omit(selectUserSchema, ['password'])
         }
       }
     )
     .post(
       '/refresh',
-      async ({ jwt, set, cookie: { accessToken, refreshToken } }) => {
+      async ({
+        accessJwt,
+        refreshJwt,
+        set,
+        cookie: { accessToken, refreshToken }
+      }) => {
         if (!refreshToken?.value) {
           set.status = 'Unauthorized'
           throw new Error('Refresh token is missing')
         }
 
-        const jwtPayload = await jwt.verify(refreshToken.value)
+        const refreshJwtPayload = await refreshJwt.verify(refreshToken.value)
         const invalidRefreshTokenMessage = 'Refresh token is invalid'
-        if (!jwtPayload) {
+        if (!refreshJwtPayload) {
           set.status = 'Forbidden'
           throw new Error(invalidRefreshTokenMessage)
         }
 
-        if (!jwtPayload.sub) {
+        if (!refreshJwtPayload.sub) {
           set.status = 'Forbidden'
           throw new Error(invalidRefreshTokenMessage)
         }
 
-        const user = await getUserByUsername({ username: jwtPayload.sub })
+        const user = await getUser({
+          [userUniqueKey]: refreshJwtPayload.sub
+        })
         if (!user) {
           set.status = 'Forbidden'
           throw new Error(invalidRefreshTokenMessage)
         }
 
         // create access token
-        const accessJwtToken = await jwt.sign({
-          sub: user.username,
+        const accessJwtToken = await accessJwt.sign({
+          sub: user[userUniqueKey],
           exp: getExpTimestamp(ACCESS_TOKEN_EXP)
         })
         accessToken?.set({
@@ -142,8 +166,8 @@ export const Controller = BaseController.group('/auth', app => {
         })
 
         // create refresh token
-        const refreshJwtToken = await jwt.sign({
-          sub: user.username,
+        const refreshJwtToken = await refreshJwt.sign({
+          sub: user[userUniqueKey],
           exp: getExpTimestamp(REFRESH_TOKEN_EXP)
         })
         refreshToken?.set({

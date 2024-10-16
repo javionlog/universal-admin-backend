@@ -1,13 +1,20 @@
+import { uniqueKey as resourceUniqueKey } from '@/db/schemas/resource/index'
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
-import { get as getResource } from '@/modules/permission/services/resource'
-import { getRoleByRoleCode } from '@/modules/permission/services/role'
+import { uniqueKey as roleUniqueKey } from '@/db/schemas/role/index'
+import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
+import { primaryKey } from '@/db/shared/index'
+import { gain as getResource } from '@/modules/permission/services/resource'
+import { gain as getRole } from '@/modules/permission/services/role'
 import {
-  createRoleToResource,
-  findRoleToResources
+  create,
+  find,
+  remove
 } from '@/modules/permission/services/role-to-resource'
 import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
+
+const tags = ['Permission']
 
 export const RoleToResourceController = (app: typeof GuardController) => {
   return app.group('/roleToResource', ins => {
@@ -15,48 +22,70 @@ export const RoleToResourceController = (app: typeof GuardController) => {
       .post(
         '/create',
         async ({ set, body, user }) => {
-          const roleResult = await getRoleByRoleCode({
-            roleCode: body.roleCode
+          const roleResult = await getRole({
+            [roleUniqueKey]: body[roleUniqueKey]
           })
           if (!roleResult) {
             set.status = 'Bad Request'
             throw new Error('Can not find role')
           }
           const resourceResult = await getResource({
-            resourceCode: body.resourceCode
+            [resourceUniqueKey]: body[resourceUniqueKey]
           })
           if (!resourceResult) {
             set.status = 'Bad Request'
             throw new Error('Can not find resource')
           }
-          const result = await createRoleToResource({
+          const result = await create({
             ...body,
-            createdBy: user.username
+            createdBy: user[userUniqueKey],
+            updatedBy: user[userUniqueKey]
           })
           return result
         },
         {
+          tags,
           detail: { summary: '授权资源给角色' },
-          tags: ['Permission'],
           body: insertSchema,
           response: {
-            200: t.Pick(selectSchema, ['roleCode', 'resourceCode'])
+            200: selectSchema
+          }
+        }
+      )
+      .post(
+        '/remove',
+        async ({ set, body }) => {
+          const result = await remove({
+            [primaryKey]: body[primaryKey]
+          })
+          if (!result) {
+            set.status = 'Bad Request'
+            throw new Error('Can not find role to resource')
+          }
+          return result
+        },
+        {
+          tags,
+          detail: { summary: '删除角色资源' },
+          body: t.Pick(selectSchema, [primaryKey]),
+          response: {
+            200: selectSchema
           }
         }
       )
       .post(
         '/find',
         async ({ body }) => {
-          const result = await findRoleToResources(body)
+          const result = await find(body)
           return result
         },
         {
+          tags,
           detail: { summary: '角色资源关系列表' },
-          tags: ['Permission'],
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
-            PageSchema,
-            TimeRangeSchema
+            TimeRangeSchema,
+            PageSchema
           ]),
           response: {
             200: t.Object({
@@ -69,12 +98,12 @@ export const RoleToResourceController = (app: typeof GuardController) => {
       .post(
         '/findAll',
         async ({ body }) => {
-          const result = await findRoleToResources(body, true)
+          const result = await find(body, true)
           return result
         },
         {
-          detail: { summary: '角色资源关系所有' },
-          tags: ['Permission'],
+          tags,
+          detail: { summary: '角色资源关系全部' },
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
             TimeRangeSchema

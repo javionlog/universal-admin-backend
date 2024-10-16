@@ -7,21 +7,23 @@ import {
 } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
+export const uniqueKey = 'roleCode'
+
 export const role = sqliteTable('role', {
   ...commonFields,
-  roleCode: text('role_code').unique().notNull(),
+  [uniqueKey]: text('role_code').unique().notNull(),
   roleName: text('role_name').notNull()
 })
 
 export const schemaComments = {
   ...baseComments,
-  roleCode: '角色编码',
+  [uniqueKey]: '角色编码',
   roleName: '角色名称'
 }
 
 const insertColumns: Refine<typeof role, 'insert'> = {
   ...baseColumns,
-  roleCode: t.String({ description: schemaComments.roleCode }),
+  [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
   roleName: t.String({ description: schemaComments.roleName })
 }
 

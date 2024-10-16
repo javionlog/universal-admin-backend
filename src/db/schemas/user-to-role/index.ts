@@ -1,8 +1,8 @@
-import { role } from '@/db/schemas/role/index'
-import { user } from '@/db/schemas/user/index'
-import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
+import { role, uniqueKey as roleUniqueKey } from '@/db/schemas/role/index'
+import { user, uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
+import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
 import { relations } from 'drizzle-orm'
-import { primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import {
   type Refine,
   createInsertSchema,
@@ -13,17 +13,20 @@ import { type Static, t } from 'elysia'
 export const userToRole = sqliteTable(
   'user_to_role',
   {
-    ...baseFields,
-    username: text('username')
+    ...commonFields,
+    [userUniqueKey]: text('username')
       .notNull()
-      .references(() => user.username),
-    roleCode: text('role_code')
+      .references(() => user[userUniqueKey]),
+    [roleUniqueKey]: text('role_code')
       .notNull()
-      .references(() => role.roleCode)
+      .references(() => role[roleUniqueKey])
   },
   t => {
     return {
-      pk: primaryKey({ columns: [t.username, t.roleCode] })
+      userToRoleUnique: uniqueIndex('user_to_role_unique').on(
+        t[userUniqueKey],
+        t[roleUniqueKey]
+      )
     }
   }
 )
@@ -43,26 +46,26 @@ export const roleUserRelation = relations(role, ({ many }) => {
 export const userToRoleRelation = relations(userToRole, ({ one }) => {
   return {
     user: one(user, {
-      fields: [userToRole.username],
-      references: [user.username]
+      fields: [userToRole[userUniqueKey]],
+      references: [user[userUniqueKey]]
     }),
     role: one(role, {
-      fields: [userToRole.roleCode],
-      references: [role.roleCode]
+      fields: [userToRole[roleUniqueKey]],
+      references: [role[roleUniqueKey]]
     })
   }
 })
 
 export const schemaComments = {
   ...baseComments,
-  username: '用户名',
-  roleCode: '角色编码'
+  [userUniqueKey]: '用户名',
+  [roleUniqueKey]: '角色编码'
 }
 
 const insertColumns: Refine<typeof userToRole, 'insert'> = {
   ...baseColumns,
-  username: t.String({ description: schemaComments.username }),
-  roleCode: t.String({ description: schemaComments.roleCode })
+  [userUniqueKey]: t.String({ description: schemaComments[userUniqueKey] }),
+  [roleUniqueKey]: t.String({ description: schemaComments[roleUniqueKey] })
 }
 
 const selectColumns: Refine<typeof userToRole, 'select'> = insertColumns
