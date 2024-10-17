@@ -1,6 +1,5 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
 import {
-  insertSchema as insertUserSchema,
   selectSchema as selectUserSchema,
   uniqueKey as userUniqueKey
 } from '@/db/schemas/user/index'
@@ -8,7 +7,6 @@ import { authDerive } from '@/modules/auth/plugins/index'
 import { BaseController } from '@/modules/shared/controllers/index'
 import { getExpTimestamp } from '@/modules/shared/libs/index'
 import {
-  create as createUser,
   gainSensitive as getSensitiveUser,
   gain as getUser,
   update as updateUser
@@ -93,30 +91,6 @@ export const Controller = BaseController.group('/auth', app => {
               refreshToken: t.String()
             })
           ])
-        }
-      }
-    )
-    .post(
-      '/signUp',
-      async ({ body }) => {
-        const hashPassword = await password.hash(body.password, {
-          algorithm: 'bcrypt',
-          cost: 10
-        })
-        const result = await createUser({
-          ...body,
-          password: hashPassword,
-          createdBy: body[userUniqueKey],
-          updatedBy: body[userUniqueKey]
-        })
-        return result
-      },
-      {
-        detail: { summary: '用户注册' },
-        tags: ['Auth'],
-        body: insertUserSchema,
-        response: {
-          200: t.Omit(selectUserSchema, ['password'])
         }
       }
     )

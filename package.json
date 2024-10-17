@@ -8,6 +8,7 @@
     "dev": "bun run --watch src/main.ts",
     "lint": "biome check --write .",
     "lint-staged": "lint-staged -c ./lintstagedrc.js",
+    "db:init": "bun src/db/init/index.ts",
     "db:check": "bunx --bun drizzle-kit check",
     "db:drop": "bunx --bun drizzle-kit drop",
     "db:generate": "bunx --bun drizzle-kit generate --name init_db",
