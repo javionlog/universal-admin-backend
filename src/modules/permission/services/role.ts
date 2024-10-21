@@ -12,7 +12,7 @@ import {
 } from '@/modules/shared/constants/indext'
 import { isEmpty, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, gte, lte } from 'drizzle-orm'
+import { count, eq, gte, like, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
@@ -109,8 +109,8 @@ export const find = async (
           break
         }
         default: {
-          recordsDynamic.where(eq(tableSchema[key], val))
-          totalDynamic.where(eq(tableSchema[key], val))
+          recordsDynamic.where(like(tableSchema[key], `%${val}%`))
+          totalDynamic.where(like(tableSchema[key], `%${val}%`))
           break
         }
       }

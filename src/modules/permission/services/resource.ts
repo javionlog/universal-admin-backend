@@ -8,19 +8,29 @@ import {
 import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
-  DEFAULT_PAGE_SIZE
+  DEFAULT_PAGE_SIZE,
+  RESOURCE_TYPE
 } from '@/modules/shared/constants/indext'
-import { isEmpty, omitObject } from '@/modules/shared/libs/index'
+import { isEmpty, listToTree, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, gte, lte } from 'drizzle-orm'
+import { count, eq, gte, like, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
 export const create = async (params: InsertParams) => {
+  const valueParams = { ...params }
+  if (valueParams.resourceType === RESOURCE_TYPE.page) {
+    if (isEmpty(valueParams.path)) {
+      throw new Error('Page type, the path can not be empty')
+    }
+    if (isEmpty(valueParams.component)) {
+      valueParams.component = valueParams.path
+    }
+  }
   const result = await db
     .insert(tableSchema)
     .values({
-      ...params,
+      ...valueParams,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
@@ -109,8 +119,8 @@ export const find = async (
           break
         }
         default: {
-          recordsDynamic.where(eq(tableSchema[key], val))
-          totalDynamic.where(eq(tableSchema[key], val))
+          recordsDynamic.where(like(tableSchema[key], `%${val}%`))
+          totalDynamic.where(like(tableSchema[key], `%${val}%`))
           break
         }
       }
@@ -129,4 +139,14 @@ export const find = async (
     records,
     total
   }
+}
+
+export const findTree = async () => {
+  const { records } = await find({}, true)
+  const result = listToTree(
+    records,
+    { childrenKey: 'children' },
+    item => item.parentId === 0
+  )
+  return result
 }

@@ -26,7 +26,7 @@ export const schemaComments = {
   lastSignInAt: '最后登录时间'
 }
 
-const insertColumns: Refine<typeof user, 'insert'> = {
+const insertColumns = {
   ...baseColumns,
   [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
   password: t.String({ description: schemaComments.password }),
@@ -37,10 +37,16 @@ const insertColumns: Refine<typeof user, 'insert'> = {
   lastSignInAt: t.Number({ description: schemaComments.lastSignInAt })
 }
 
-const selectColumns: Refine<typeof user, 'select'> = insertColumns
+const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(user, insertColumns)
-export const selectSchema = createSelectSchema(user, selectColumns)
+export const insertSchema = createInsertSchema(
+  user,
+  insertColumns as Refine<typeof use, 'insert'>
+)
+export const selectSchema = createSelectSchema(
+  user,
+  selectColumns as Refine<typeof user, 'select'>
+)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>

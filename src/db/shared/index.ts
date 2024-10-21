@@ -36,11 +36,12 @@ export const baseColumns = {
     description: baseComments.status,
     default: BOOL_MAP.no
   }),
-  remark: t.Optional(
+  remark: t.Union([
+    t.Null(),
     t.String({
       description: baseComments.remark
     })
-  ),
+  ]),
   sort: t.Number({ description: baseComments.sort, default: 0 }),
   delFlag: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
     description: baseComments.delFlag,

@@ -16,10 +16,10 @@ export const resource = sqliteTable('resource', {
   [uniqueKey]: text('resource_code').unique().notNull(),
   resourceName: text('resource_name').notNull(),
   resourceType: text('resource_type').notNull(),
-  path: text('path').notNull(),
-  activePath: text('active_path').notNull(),
-  component: text('component').notNull(),
-  icon: text('icon').notNull(),
+  path: text('path'),
+  activePath: text('active_path'),
+  component: text('component'),
+  icon: text('icon'),
   isLink: text('is_link').notNull(),
   isCache: text('is_cache').notNull(),
   isAffix: text('is_affix').notNull(),
@@ -42,7 +42,7 @@ export const schemaComments = {
   isHide: '是否隐藏，是(Y)/否(N)'
 }
 
-const insertColumns: Refine<typeof resource, 'insert'> = {
+const insertColumns = {
   ...baseColumns,
   parentId: t.Number({ description: schemaComments.parentId, default: 0 }),
   [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
@@ -58,10 +58,16 @@ const insertColumns: Refine<typeof resource, 'insert'> = {
       default: RESOURCE_TYPE.menu
     }
   ),
-  path: t.String({ description: schemaComments.path, default: '' }),
-  activePath: t.String({ description: schemaComments.activePath, default: '' }),
-  component: t.String({ description: schemaComments.component, default: '' }),
-  icon: t.String({ description: schemaComments.icon, default: '' }),
+  path: t.Union([t.Null(), t.String({ description: schemaComments.path })]),
+  activePath: t.Union([
+    t.Null(),
+    t.String({ description: schemaComments.activePath })
+  ]),
+  component: t.Union([
+    t.Null(),
+    t.String({ description: schemaComments.component })
+  ]),
+  icon: t.Union([t.Null(), t.String({ description: schemaComments.icon })]),
   isLink: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
     description: schemaComments.isLink,
     default: BOOL_MAP.no
@@ -80,10 +86,30 @@ const insertColumns: Refine<typeof resource, 'insert'> = {
   })
 }
 
-const selectColumns: Refine<typeof resource, 'select'> = insertColumns
+const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(resource, insertColumns)
-export const selectSchema = createSelectSchema(resource, selectColumns)
+export const insertSchema = createInsertSchema(
+  resource,
+  insertColumns as Refine<typeof resource, 'insert'>
+)
+
+export const selectSchema = createSelectSchema(
+  resource,
+  selectColumns as Refine<typeof resource, 'select'>
+)
+
+export const resourceNodeSchema = t.Recursive(
+  self => {
+    return t.Composite([
+      selectSchema,
+      t.Object({
+        children: t.Array(self)
+      })
+    ])
+  },
+  { $id: 'resourceNodeSchema' }
+)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>
+export type ResourceNode = Static<typeof resourceNodeSchema>

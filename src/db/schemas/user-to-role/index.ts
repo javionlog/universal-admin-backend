@@ -62,16 +62,22 @@ export const schemaComments = {
   [roleUniqueKey]: '角色编码'
 }
 
-const insertColumns: Refine<typeof userToRole, 'insert'> = {
+const insertColumns = {
   ...baseColumns,
   [userUniqueKey]: t.String({ description: schemaComments[userUniqueKey] }),
   [roleUniqueKey]: t.String({ description: schemaComments[roleUniqueKey] })
 }
 
-const selectColumns: Refine<typeof userToRole, 'select'> = insertColumns
+const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(userToRole, insertColumns)
-export const selectSchema = createSelectSchema(userToRole, selectColumns)
+export const insertSchema = createInsertSchema(
+  userToRole,
+  insertColumns as Refine<typeof userToRole, 'insert'>
+)
+export const selectSchema = createSelectSchema(
+  userToRole,
+  selectColumns as Refine<typeof userToRole, 'select'>
+)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>

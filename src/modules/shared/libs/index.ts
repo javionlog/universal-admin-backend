@@ -36,3 +36,50 @@ export const isEmpty = (val: unknown) => {
   }
   return val === null || val === undefined
 }
+
+type TreeNode<T, K extends number | string> = T & {
+  [_K in K]: TreeNode<T, K>[]
+}
+
+export const listToTree = <
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  T extends Record<number | string, any>,
+  K extends keyof T & (number | string),
+  C extends number | string
+>(
+  list: T[],
+  props?: {
+    parentId?: K
+    id?: K
+    childrenKey?: C
+  },
+  parentIsEmptyFn?: (item: T) => boolean
+): TreeNode<T, C>[] => {
+  const {
+    parentId = 'parentId',
+    id = 'id',
+    childrenKey = 'children'
+  } = props ?? {}
+  const result: TreeNode<T, C>[] = []
+  const idMap: {
+    [key: number | string]: TreeNode<T, C>
+  } = {}
+
+  for (const item of list) {
+    idMap[item[id]] = { ...item, [childrenKey]: [] }
+  }
+
+  for (const item of list) {
+    const pId = item[parentId]
+    const cId = item[id]
+    const emptyFn = parentIsEmptyFn ? parentIsEmptyFn : () => isEmpty(pId)
+    if (emptyFn(item)) {
+      result.push(idMap[cId] as TreeNode<T, C>)
+    } else {
+      const mapItem = idMap[pId]
+      mapItem[childrenKey].push(idMap[cId])
+    }
+  }
+
+  return result
+}

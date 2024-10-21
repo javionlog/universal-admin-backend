@@ -1,9 +1,14 @@
-import { insertSchema, selectSchema } from '@/db/schemas/resource/index'
+import {
+  insertSchema,
+  resourceNodeSchema,
+  selectSchema
+} from '@/db/schemas/resource/index'
 import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
 import { primaryKey } from '@/db/shared/index'
 import {
   create,
   find,
+  findTree,
   get,
   remove,
   update
@@ -136,6 +141,20 @@ export const ResourceController = (app: typeof GuardController) => {
               records: t.Array(selectSchema),
               total: t.Number()
             })
+          }
+        }
+      )
+      .post(
+        '/findTree',
+        async () => {
+          const result = await findTree()
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}树状` },
+          response: {
+            200: t.Array(resourceNodeSchema)
           }
         }
       )

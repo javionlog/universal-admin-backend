@@ -65,7 +65,7 @@ export const schemaComments = {
   [resourceUniqueKey]: '资源编码'
 }
 
-const insertColumns: Refine<typeof roleToResource, 'insert'> = {
+const insertColumns = {
   ...baseColumns,
   [roleUniqueKey]: t.String({ description: schemaComments[roleUniqueKey] }),
   [resourceUniqueKey]: t.String({
@@ -73,10 +73,16 @@ const insertColumns: Refine<typeof roleToResource, 'insert'> = {
   })
 }
 
-const selectColumns: Refine<typeof roleToResource, 'select'> = insertColumns
+const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(roleToResource, insertColumns)
-export const selectSchema = createSelectSchema(roleToResource, selectColumns)
+export const insertSchema = createInsertSchema(
+  roleToResource,
+  insertColumns as Refine<typeof roleToResource, 'insert'>
+)
+export const selectSchema = createSelectSchema(
+  roleToResource,
+  selectColumns as Refine<typeof roleToResource, 'select'>
+)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>
