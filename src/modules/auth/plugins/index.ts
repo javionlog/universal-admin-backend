@@ -4,7 +4,6 @@ import {
   REFRESH_JWT_NAME,
   REFRESH_JWT_SECRET
 } from '@/config/index'
-import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
 import { gain as getUser } from '@/modules/user/services/index'
 import jwt from '@elysiajs/jwt'
 import type { Elysia } from 'elysia'
@@ -35,7 +34,7 @@ export const authDerive = (app: Elysia) => {
         set.status = 'Forbidden'
         throw new Error('Access token is invalid')
       }
-      const user = await getUser({ [userUniqueKey]: accessJwtPayload.sub })
+      const user = await getUser({ username: accessJwtPayload.sub })
       if (!user) {
         set.status = 'Forbidden'
         throw new Error('Access token is invalid')

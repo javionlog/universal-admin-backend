@@ -3,8 +3,6 @@ import {
   resourceNodeSchema,
   selectSchema
 } from '@/db/schemas/resource/index'
-import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
-import { primaryKey } from '@/db/shared/index'
 import {
   create,
   find,
@@ -29,8 +27,8 @@ export const ResourceController = (app: typeof GuardController) => {
         async ({ body, user }) => {
           const result = await create({
             ...body,
-            createdBy: user[userUniqueKey],
-            updatedBy: user[userUniqueKey]
+            createdBy: user.username,
+            updatedBy: user.username
           })
           return result
         },
@@ -48,7 +46,7 @@ export const ResourceController = (app: typeof GuardController) => {
         async ({ body, user }) => {
           const result = await update({
             ...body,
-            updatedBy: user[userUniqueKey]
+            updatedBy: user.username
           })
           return result
         },
@@ -65,7 +63,7 @@ export const ResourceController = (app: typeof GuardController) => {
         '/remove',
         async ({ set, body }) => {
           const result = await remove({
-            [primaryKey]: body[primaryKey]
+            id: body.id
           })
           if (!result) {
             set.status = 'Bad Request'
@@ -76,7 +74,7 @@ export const ResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}删除` },
-          body: t.Pick(selectSchema, [primaryKey]),
+          body: t.Pick(selectSchema, ['id']),
           response: {
             200: selectSchema
           }
@@ -95,7 +93,7 @@ export const ResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}信息` },
-          body: t.Pick(selectSchema, [primaryKey]),
+          body: t.Pick(selectSchema, ['id']),
           response: {
             200: selectSchema
           }

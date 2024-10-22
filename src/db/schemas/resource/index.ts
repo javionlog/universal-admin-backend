@@ -1,15 +1,15 @@
-import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
+import { roleToResource } from '@/db/schemas/role-to-resource/index'
+import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
 import { BOOL_MAP, RESOURCE_TYPE } from '@/modules/shared/constants/indext'
+import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
-export const uniqueKey = 'resourceCode'
-
 export const resource = sqliteTable('resource', {
-  ...commonFields,
+  ...baseFields,
   parentId: integer('parent_id').notNull(),
-  [uniqueKey]: text('resource_code').unique().notNull(),
+  resourceCode: text('resource_code').unique().notNull(),
   resourceName: text('resource_name').notNull(),
   resourceType: text('resource_type').notNull(),
   path: text('path'),
@@ -22,10 +22,16 @@ export const resource = sqliteTable('resource', {
   isHide: text('is_hide').notNull()
 })
 
+export const resourceRelation = relations(resource, ({ many }) => {
+  return {
+    roleToResource: many(roleToResource)
+  }
+})
+
 export const schemaComments = {
   ...baseComments,
   parentId: '父 ID',
-  [uniqueKey]: '资源编码',
+  resourceCode: '资源编码',
   resourceName: '资源名称',
   resourceType: '资源类型，菜单(Menu)/页面(Page)/元素(Element)',
   path: '页面路径',
@@ -41,7 +47,7 @@ export const schemaComments = {
 const insertColumns = {
   ...baseColumns,
   parentId: t.Number({ description: schemaComments.parentId, default: 0 }),
-  [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
+  resourceCode: t.String({ description: schemaComments.resourceCode }),
   resourceName: t.String({ description: schemaComments.resourceName }),
   resourceType: t.Union(
     [

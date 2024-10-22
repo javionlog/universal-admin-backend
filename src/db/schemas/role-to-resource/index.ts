@@ -1,9 +1,6 @@
-import {
-  resource,
-  uniqueKey as resourceUniqueKey
-} from '@/db/schemas/resource/index'
-import { role, uniqueKey as roleUniqueKey } from '@/db/schemas/role/index'
-import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
+import { resource } from '@/db/schemas/resource/index'
+import { role } from '@/db/schemas/role/index'
+import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
 import { relations } from 'drizzle-orm'
 import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
@@ -12,60 +9,48 @@ import { type Static, t } from 'elysia'
 export const roleToResource = sqliteTable(
   'role_to_resource',
   {
-    ...commonFields,
-    [roleUniqueKey]: text('role_code')
+    ...baseFields,
+    roleCode: text('role_code')
       .notNull()
-      .references(() => role[roleUniqueKey]),
-    [resourceUniqueKey]: text('resource_code')
+      .references(() => role.roleCode),
+    resourceCode: text('resource_code')
       .notNull()
-      .references(() => resource[resourceUniqueKey])
+      .references(() => resource.resourceCode)
   },
   t => {
     return {
       roleToResourceUnique: uniqueIndex('role_to_resource_unique').on(
-        t[roleUniqueKey],
-        t[resourceUniqueKey]
+        t.roleCode,
+        t.resourceCode
       )
     }
   }
 )
 
-export const roleResourceRelation = relations(resource, ({ many }) => {
-  return {
-    resources: many(roleToResource)
-  }
-})
-
-export const resourceRoleRelation = relations(role, ({ many }) => {
-  return {
-    roles: many(roleToResource)
-  }
-})
-
 export const roleToResourceRelation = relations(roleToResource, ({ one }) => {
   return {
     role: one(role, {
-      fields: [roleToResource[roleUniqueKey]],
-      references: [role[roleUniqueKey]]
+      fields: [roleToResource.roleCode],
+      references: [role.roleCode]
     }),
     resource: one(resource, {
-      fields: [roleToResource[resourceUniqueKey]],
-      references: [resource[resourceUniqueKey]]
+      fields: [roleToResource.resourceCode],
+      references: [resource.resourceCode]
     })
   }
 })
 
 export const schemaComments = {
   ...baseComments,
-  [roleUniqueKey]: '角色编码',
-  [resourceUniqueKey]: '资源编码'
+  roleCode: '角色编码',
+  resourceCode: '资源编码'
 }
 
 const insertColumns = {
   ...baseColumns,
-  [roleUniqueKey]: t.String({ description: schemaComments[roleUniqueKey] }),
-  [resourceUniqueKey]: t.String({
-    description: schemaComments[resourceUniqueKey]
+  roleCode: t.String({ description: schemaComments.roleCode }),
+  resourceCode: t.String({
+    description: schemaComments.resourceCode
   })
 }
 

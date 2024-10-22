@@ -1,22 +1,28 @@
-import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
+import { userToRole } from '@/db/schemas/user-to-role/index'
+import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
 import { BOOL_MAP } from '@/modules/shared/constants/indext'
+import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
-export const uniqueKey = 'username'
-
 export const user = sqliteTable('user', {
-  ...commonFields,
-  [uniqueKey]: text('username').unique().notNull(),
+  ...baseFields,
+  username: text('username').unique().notNull(),
   password: text('password').notNull(),
   isAdmin: text('is_admin').notNull().default(BOOL_MAP.no),
   lastSignInAt: integer('last_sign_in_at')
 })
 
+export const userRelation = relations(user, ({ many }) => {
+  return {
+    roles: many(userToRole)
+  }
+})
+
 export const schemaComments = {
   ...baseComments,
-  [uniqueKey]: '用户名',
+  username: '用户名',
   password: '密码',
   isAdmin: '是否管理员，是(Y)/否(N)',
   lastSignInAt: '最后登录时间'
@@ -24,7 +30,7 @@ export const schemaComments = {
 
 const insertColumns = {
   ...baseColumns,
-  [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
+  username: t.String({ description: schemaComments.username }),
   password: t.String({ description: schemaComments.password }),
   isAdmin: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
     description: schemaComments.isAdmin,

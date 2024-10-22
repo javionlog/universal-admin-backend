@@ -4,7 +4,6 @@ import {
   type SelectParams,
   userToRole as tableSchema
 } from '@/db/schemas/user-to-role/index'
-import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
@@ -28,20 +27,20 @@ export const create = async (params: InsertParams) => {
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const remove = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .delete(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .returning()
     .get()) as SelectParams
   return result
 }
 
-export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const get = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .get()) as SelectParams
   return result
 }

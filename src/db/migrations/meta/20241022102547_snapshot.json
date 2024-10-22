@@ -1,12 +1,19 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "30f14dda-88b2-4977-86e6-ecad3e5253bf",
+  "id": "996ab2f9-251d-4450-9db8-58d986c0f28c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "resource": {
       "name": "resource",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -44,7 +51,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "updated_at": {
           "name": "updated_at",
@@ -52,7 +59,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "created_by": {
           "name": "created_by",
@@ -67,13 +74,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
         },
         "parent_id": {
           "name": "parent_id",
@@ -174,6 +174,13 @@
     "role_to_resource": {
       "name": "role_to_resource",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -211,7 +218,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "updated_at": {
           "name": "updated_at",
@@ -219,7 +226,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "created_by": {
           "name": "created_by",
@@ -234,13 +241,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
         },
         "role_code": {
           "name": "role_code",
@@ -290,6 +290,13 @@
     "role": {
       "name": "role",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -327,7 +334,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "updated_at": {
           "name": "updated_at",
@@ -335,7 +342,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "created_by": {
           "name": "created_by",
@@ -350,13 +357,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
         },
         "role_code": {
           "name": "role_code",
@@ -387,6 +387,13 @@
     "user_to_role": {
       "name": "user_to_role",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -424,7 +431,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "updated_at": {
           "name": "updated_at",
@@ -432,7 +439,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "created_by": {
           "name": "created_by",
@@ -447,13 +454,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
         },
         "username": {
           "name": "username",
@@ -503,6 +503,13 @@
     "user": {
       "name": "user",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -540,7 +547,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "updated_at": {
           "name": "updated_at",
@@ -548,7 +555,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729480024583
+          "default": 1729592747042
         },
         "created_by": {
           "name": "created_by",
@@ -563,13 +570,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
         },
         "username": {
           "name": "username",

@@ -1,8 +1,5 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
-import {
-  selectSchema as selectUserSchema,
-  uniqueKey as userUniqueKey
-} from '@/db/schemas/user/index'
+import { selectSchema as selectUserSchema } from '@/db/schemas/user/index'
 import { authDerive } from '@/modules/auth/plugins/index'
 import { BaseController } from '@/modules/shared/controllers/index'
 import { getExpTimestamp } from '@/modules/shared/libs/index'
@@ -26,7 +23,7 @@ export const Controller = BaseController.group('/auth', app => {
         cookie: { accessToken, refreshToken }
       }) => {
         const user = await getSensitiveUser({
-          [userUniqueKey]: body[userUniqueKey]
+          username: body.username
         })
         const invalidUserMessage =
           'The username or password you entered is incorrect'
@@ -52,7 +49,7 @@ export const Controller = BaseController.group('/auth', app => {
 
         // create access token
         const accessJwtToken = await accessJwt.sign({
-          sub: user[userUniqueKey],
+          sub: user.username,
           exp: getExpTimestamp(ACCESS_TOKEN_EXP)
         })
         accessToken?.set({
@@ -64,7 +61,7 @@ export const Controller = BaseController.group('/auth', app => {
 
         // create refresh token
         const refreshJwtToken = await refreshJwt.sign({
-          sub: user[userUniqueKey],
+          sub: user.username,
           exp: getExpTimestamp(REFRESH_TOKEN_EXP)
         })
         refreshToken?.set({
@@ -74,7 +71,7 @@ export const Controller = BaseController.group('/auth', app => {
           path: '/'
         })
         return {
-          [userUniqueKey]: user[userUniqueKey],
+          username: user.username,
           accessToken: accessJwtToken,
           refreshToken: refreshJwtToken
         }
@@ -82,10 +79,10 @@ export const Controller = BaseController.group('/auth', app => {
       {
         detail: { summary: '用户登录' },
         tags: ['Auth'],
-        body: t.Pick(selectUserSchema, [userUniqueKey, 'password']),
+        body: t.Pick(selectUserSchema, ['username', 'password']),
         response: {
           200: t.Composite([
-            t.Pick(selectUserSchema, [userUniqueKey]),
+            t.Pick(selectUserSchema, ['username']),
             t.Object({
               accessToken: t.String(),
               refreshToken: t.String()
@@ -120,7 +117,7 @@ export const Controller = BaseController.group('/auth', app => {
         }
 
         const user = await getUser({
-          [userUniqueKey]: refreshJwtPayload.sub
+          username: refreshJwtPayload.sub
         })
         if (!user) {
           set.status = 'Forbidden'
@@ -129,7 +126,7 @@ export const Controller = BaseController.group('/auth', app => {
 
         // create access token
         const accessJwtToken = await accessJwt.sign({
-          sub: user[userUniqueKey],
+          sub: user.username,
           exp: getExpTimestamp(ACCESS_TOKEN_EXP)
         })
         accessToken?.set({
@@ -141,7 +138,7 @@ export const Controller = BaseController.group('/auth', app => {
 
         // create refresh token
         const refreshJwtToken = await refreshJwt.sign({
-          sub: user[userUniqueKey],
+          sub: user.username,
           exp: getExpTimestamp(REFRESH_TOKEN_EXP)
         })
         refreshToken?.set({

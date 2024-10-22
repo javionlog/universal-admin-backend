@@ -2,10 +2,8 @@ import { db } from '@/db/index'
 import {
   type InsertParams,
   type SelectParams,
-  role as tableSchema,
-  uniqueKey
+  role as tableSchema
 } from '@/db/schemas/role/index'
-import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
@@ -30,39 +28,39 @@ export const create = async (params: InsertParams) => {
 }
 
 export const update = async (params: SelectParams) => {
-  const restParams = omitObject(params, [primaryKey])
+  const restParams = omitObject(params, ['id'])
   const result = (await db
     .update(tableSchema)
     .set(restParams)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .returning()
     .get()) as SelectParams
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const remove = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .delete(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .returning()
     .get()) as SelectParams
   return result
 }
 
-export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const get = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .get()) as SelectParams
   return result
 }
 
-export const gain = async (params: Pick<SelectParams, typeof uniqueKey>) => {
+export const gain = async (params: Pick<SelectParams, 'roleCode'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
-    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .where(eq(tableSchema.roleCode, params.roleCode))
     .get()) as SelectParams
   return result
 }

@@ -1,8 +1,4 @@
-import { uniqueKey as resourceUniqueKey } from '@/db/schemas/resource/index'
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
-import { uniqueKey as roleUniqueKey } from '@/db/schemas/role/index'
-import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
-import { primaryKey } from '@/db/shared/index'
 import { gain as getResource } from '@/modules/permission/services/resource'
 import { gain as getRole } from '@/modules/permission/services/role'
 import {
@@ -23,14 +19,14 @@ export const RoleToResourceController = (app: typeof GuardController) => {
         '/create',
         async ({ set, body, user }) => {
           const roleResult = await getRole({
-            [roleUniqueKey]: body[roleUniqueKey]
+            roleCode: body.roleCode
           })
           if (!roleResult) {
             set.status = 'Bad Request'
             throw new Error('Can not find role')
           }
           const resourceResult = await getResource({
-            [resourceUniqueKey]: body[resourceUniqueKey]
+            resourceCode: body.resourceCode
           })
           if (!resourceResult) {
             set.status = 'Bad Request'
@@ -38,8 +34,8 @@ export const RoleToResourceController = (app: typeof GuardController) => {
           }
           const result = await create({
             ...body,
-            createdBy: user[userUniqueKey],
-            updatedBy: user[userUniqueKey]
+            createdBy: user.username,
+            updatedBy: user.username
           })
           return result
         },
@@ -56,7 +52,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
         '/remove',
         async ({ set, body }) => {
           const result = await remove({
-            [primaryKey]: body[primaryKey]
+            id: body.id
           })
           if (!result) {
             set.status = 'Bad Request'
@@ -67,7 +63,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: '删除角色资源' },
-          body: t.Pick(selectSchema, [primaryKey]),
+          body: t.Pick(selectSchema, ['id']),
           response: {
             200: selectSchema
           }

@@ -1,13 +1,13 @@
 CREATE TABLE `resource` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`status` text DEFAULT 'N' NOT NULL,
 	`remark` text,
 	`sort` integer DEFAULT 0 NOT NULL,
 	`del_flag` text DEFAULT 'N' NOT NULL,
-	`created_at` integer DEFAULT 1729480024583 NOT NULL,
-	`updated_at` integer DEFAULT 1729480024583 NOT NULL,
+	`created_at` integer DEFAULT 1729592747042 NOT NULL,
+	`updated_at` integer DEFAULT 1729592747042 NOT NULL,
 	`created_by` text NOT NULL,
 	`updated_by` text NOT NULL,
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`parent_id` integer NOT NULL,
 	`resource_code` text NOT NULL,
 	`resource_name` text NOT NULL,
@@ -23,15 +23,15 @@ CREATE TABLE `resource` (
 );
 --> statement-breakpoint
 CREATE TABLE `role_to_resource` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`status` text DEFAULT 'N' NOT NULL,
 	`remark` text,
 	`sort` integer DEFAULT 0 NOT NULL,
 	`del_flag` text DEFAULT 'N' NOT NULL,
-	`created_at` integer DEFAULT 1729480024583 NOT NULL,
-	`updated_at` integer DEFAULT 1729480024583 NOT NULL,
+	`created_at` integer DEFAULT 1729592747042 NOT NULL,
+	`updated_at` integer DEFAULT 1729592747042 NOT NULL,
 	`created_by` text NOT NULL,
 	`updated_by` text NOT NULL,
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`role_code` text NOT NULL,
 	`resource_code` text NOT NULL,
 	FOREIGN KEY (`role_code`) REFERENCES `role`(`role_code`) ON UPDATE no action ON DELETE no action,
@@ -39,29 +39,29 @@ CREATE TABLE `role_to_resource` (
 );
 --> statement-breakpoint
 CREATE TABLE `role` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`status` text DEFAULT 'N' NOT NULL,
 	`remark` text,
 	`sort` integer DEFAULT 0 NOT NULL,
 	`del_flag` text DEFAULT 'N' NOT NULL,
-	`created_at` integer DEFAULT 1729480024583 NOT NULL,
-	`updated_at` integer DEFAULT 1729480024583 NOT NULL,
+	`created_at` integer DEFAULT 1729592747042 NOT NULL,
+	`updated_at` integer DEFAULT 1729592747042 NOT NULL,
 	`created_by` text NOT NULL,
 	`updated_by` text NOT NULL,
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`role_code` text NOT NULL,
 	`role_name` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `user_to_role` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`status` text DEFAULT 'N' NOT NULL,
 	`remark` text,
 	`sort` integer DEFAULT 0 NOT NULL,
 	`del_flag` text DEFAULT 'N' NOT NULL,
-	`created_at` integer DEFAULT 1729480024583 NOT NULL,
-	`updated_at` integer DEFAULT 1729480024583 NOT NULL,
+	`created_at` integer DEFAULT 1729592747042 NOT NULL,
+	`updated_at` integer DEFAULT 1729592747042 NOT NULL,
 	`created_by` text NOT NULL,
 	`updated_by` text NOT NULL,
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`username` text NOT NULL,
 	`role_code` text NOT NULL,
 	FOREIGN KEY (`username`) REFERENCES `user`(`username`) ON UPDATE no action ON DELETE no action,
@@ -69,15 +69,15 @@ CREATE TABLE `user_to_role` (
 );
 --> statement-breakpoint
 CREATE TABLE `user` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`status` text DEFAULT 'N' NOT NULL,
 	`remark` text,
 	`sort` integer DEFAULT 0 NOT NULL,
 	`del_flag` text DEFAULT 'N' NOT NULL,
-	`created_at` integer DEFAULT 1729480024583 NOT NULL,
-	`updated_at` integer DEFAULT 1729480024583 NOT NULL,
+	`created_at` integer DEFAULT 1729592747042 NOT NULL,
+	`updated_at` integer DEFAULT 1729592747042 NOT NULL,
 	`created_by` text NOT NULL,
 	`updated_by` text NOT NULL,
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`username` text NOT NULL,
 	`password` text NOT NULL,
 	`is_admin` text DEFAULT 'N' NOT NULL,

@@ -1,25 +1,33 @@
-import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
+import { roleToResource } from '@/db/schemas/role-to-resource/index'
+import { userToRole } from '@/db/schemas/user-to-role/index'
+import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
+import { relations } from 'drizzle-orm'
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
-export const uniqueKey = 'roleCode'
-
 export const role = sqliteTable('role', {
-  ...commonFields,
-  [uniqueKey]: text('role_code').unique().notNull(),
+  ...baseFields,
+  roleCode: text('role_code').unique().notNull(),
   roleName: text('role_name').notNull()
+})
+
+export const roleRelation = relations(role, ({ many }) => {
+  return {
+    users: many(userToRole),
+    resources: many(roleToResource)
+  }
 })
 
 export const schemaComments = {
   ...baseComments,
-  [uniqueKey]: '角色编码',
+  roleCode: '角色编码',
   roleName: '角色名称'
 }
 
 const insertColumns = {
   ...baseColumns,
-  [uniqueKey]: t.String({ description: schemaComments[uniqueKey] }),
+  roleCode: t.String({ description: schemaComments.roleCode }),
   roleName: t.String({ description: schemaComments.roleName })
 }
 

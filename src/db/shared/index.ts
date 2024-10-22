@@ -3,6 +3,7 @@ import { integer, text } from 'drizzle-orm/sqlite-core'
 import { t } from 'elysia'
 
 export const baseFields = {
+  id: integer('id').primaryKey({ autoIncrement: true }),
   status: text('status').notNull().default(BOOL_MAP.no),
   remark: text('remark'),
   sort: integer('sort').notNull().default(0),
@@ -11,13 +12,6 @@ export const baseFields = {
   updatedAt: integer('updated_at').notNull().default(Date.now()),
   createdBy: text('created_by').notNull(),
   updatedBy: text('updated_by').notNull()
-}
-
-export const primaryKey = 'id'
-
-export const commonFields = {
-  ...baseFields,
-  [primaryKey]: integer('id').primaryKey({ autoIncrement: true })
 }
 
 export const baseComments = {

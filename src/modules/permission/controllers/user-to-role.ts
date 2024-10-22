@@ -1,6 +1,4 @@
-import { uniqueKey as roleUniqueKey } from '@/db/schemas/role/index'
 import { insertSchema, selectSchema } from '@/db/schemas/user-to-role/index'
-import { uniqueKey as userUniqueKey } from '@/db/schemas/user/index'
 import { gain as getRole } from '@/modules/permission/services/role'
 import { create, find } from '@/modules/permission/services/user-to-role'
 import type { GuardController } from '@/modules/shared/controllers/index'
@@ -17,14 +15,14 @@ export const UserToRoleController = (app: typeof GuardController) => {
         '/create',
         async ({ set, body, user }) => {
           const userResult = await getUser({
-            [userUniqueKey]: body[userUniqueKey]
+            username: body.username
           })
           if (!userResult) {
             set.status = 'Bad Request'
             throw new Error('Can not find user')
           }
           const roleResult = await getRole({
-            [roleUniqueKey]: body[roleUniqueKey]
+            roleCode: body.roleCode
           })
           if (!roleResult) {
             set.status = 'Bad Request'
@@ -32,8 +30,8 @@ export const UserToRoleController = (app: typeof GuardController) => {
           }
           const result = await create({
             ...body,
-            createdBy: user[userUniqueKey],
-            updatedBy: user[userUniqueKey]
+            createdBy: user.username,
+            updatedBy: user.username
           })
           return result
         },

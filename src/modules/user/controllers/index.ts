@@ -1,5 +1,4 @@
-import { insertSchema, selectSchema, uniqueKey } from '@/db/schemas/user/index'
-import { primaryKey } from '@/db/shared/index'
+import { insertSchema, selectSchema } from '@/db/schemas/user/index'
 import { GuardController } from '@/modules/shared/controllers/index'
 import {
   create,
@@ -28,8 +27,8 @@ export const Controller = GuardController.group('/user', app => {
         const result = await create({
           ...body,
           password: hashPassword,
-          createdBy: body[uniqueKey],
-          updatedBy: body[uniqueKey]
+          createdBy: body.username,
+          updatedBy: body.username
         })
         return result
       },
@@ -45,7 +44,7 @@ export const Controller = GuardController.group('/user', app => {
     .post(
       '/update',
       async ({ body, user }) => {
-        const result = await update({ ...body, updatedBy: user[uniqueKey] })
+        const result = await update({ ...body, updatedBy: user.username })
         return result
       },
       {
@@ -61,7 +60,7 @@ export const Controller = GuardController.group('/user', app => {
       '/remove',
       async ({ set, body }) => {
         const result = await remove({
-          [primaryKey]: body[primaryKey]
+          id: body.id
         })
         if (!result) {
           set.status = 'Bad Request'
@@ -72,7 +71,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}删除` },
-        body: t.Pick(selectSchema, [primaryKey]),
+        body: t.Pick(selectSchema, ['id']),
         response: {
           200: t.Omit(selectSchema, ['password'])
         }
@@ -82,7 +81,7 @@ export const Controller = GuardController.group('/user', app => {
       '/get',
       async ({ set, body }) => {
         const result = await get({
-          [primaryKey]: body[primaryKey]
+          id: body.id
         })
         if (!result) {
           set.status = 'Bad Request'
@@ -93,7 +92,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}信息` },
-        body: t.Pick(selectSchema, [primaryKey]),
+        body: t.Pick(selectSchema, ['id']),
         response: {
           200: t.Omit(selectSchema, ['password'])
         }

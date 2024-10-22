@@ -2,10 +2,8 @@ import { db } from '@/db/index'
 import {
   type InsertParams,
   type SelectParams,
-  user as tableSchema,
-  uniqueKey
+  user as tableSchema
 } from '@/db/schemas/user/index'
-import { primaryKey } from '@/db/shared/index'
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
@@ -30,48 +28,44 @@ export const create = async (params: InsertParams) => {
 }
 
 export const update = async (params: SelectParams) => {
-  const restParams = omitObject(params, [primaryKey, 'password'])
+  const restParams = omitObject(params, ['username', 'password'])
   const result = (await db
     .update(tableSchema)
     .set(restParams)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.username, params.username))
     .returning()
     .get()) as SelectParams
   return omitObject(result, ['password'])
 }
 
-export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const remove = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .delete(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .returning()
     .get()) as SelectParams
   return result ? omitObject(result, ['password']) : result
 }
 
-export const getSensitive = async (
-  params: Pick<SelectParams, typeof primaryKey>
-) => {
+export const getSensitive = async (params: Pick<SelectParams, 'id'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
-    .where(eq(tableSchema[primaryKey], params[primaryKey]))
+    .where(eq(tableSchema.id, params.id))
     .get()) as SelectParams
   return result
 }
 
-export const gainSensitive = async (
-  params: Pick<SelectParams, typeof uniqueKey>
-) => {
+export const gainSensitive = async (params: Pick<SelectParams, 'username'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
-    .where(eq(tableSchema[uniqueKey], params[uniqueKey]))
+    .where(eq(tableSchema.username, params.username))
     .get()) as SelectParams
   return result
 }
 
-export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
+export const get = async (params: Pick<SelectParams, 'id'>) => {
   const result = await getSensitive(params)
   if (result) {
     const { password, ...rest } = result
@@ -80,7 +74,7 @@ export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
   return result
 }
 
-export const gain = async (params: Pick<SelectParams, typeof uniqueKey>) => {
+export const gain = async (params: Pick<SelectParams, 'username'>) => {
   const result = await gainSensitive(params)
   if (result) {
     const { password, ...rest } = result
@@ -148,6 +142,7 @@ export const find = async (
           .limit(pageSize)
           .all()
   ) as SelectParams[]
+
   const total = (await totalDynamic)[0]?.value ?? 0
 
   return {
