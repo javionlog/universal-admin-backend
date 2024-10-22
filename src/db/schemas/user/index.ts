@@ -1,11 +1,7 @@
 import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
 import { BOOL_MAP } from '@/modules/shared/constants/indext'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import {
-  type Refine,
-  createInsertSchema,
-  createSelectSchema
-} from 'drizzle-typebox'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
 export const uniqueKey = 'username'
@@ -39,14 +35,8 @@ const insertColumns = {
 
 const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(
-  user,
-  insertColumns as Refine<typeof use, 'insert'>
-)
-export const selectSchema = createSelectSchema(
-  user,
-  selectColumns as Refine<typeof user, 'select'>
-)
+export const insertSchema = createInsertSchema(user, insertColumns)
+export const selectSchema = createSelectSchema(user, selectColumns)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>

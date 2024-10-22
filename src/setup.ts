@@ -13,7 +13,7 @@ export const globalPlugin = (app: Elysia) => {
     .use(
       swagger({
         path: '/swagger',
-        // biome-ignore lint/style/useNamingConvention:
+        // biome-ignore lint/style/useNamingConvention: <explanation>
         scalarCDN: '/public/js/standalone.js',
         documentation: {
           tags: [

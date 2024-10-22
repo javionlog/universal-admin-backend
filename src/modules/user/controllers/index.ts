@@ -38,7 +38,7 @@ export const Controller = GuardController.group('/user', app => {
         detail: { summary: `${summaryPrefix}创建` },
         body: insertSchema,
         response: {
-          200: t.Omit(insertSchema, ['password'])
+          200: t.Omit(selectSchema, ['password'])
         }
       }
     )

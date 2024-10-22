@@ -1,10 +1,6 @@
 import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import {
-  type Refine,
-  createInsertSchema,
-  createSelectSchema
-} from 'drizzle-typebox'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
 export const uniqueKey = 'roleCode'
@@ -29,14 +25,8 @@ const insertColumns = {
 
 const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(
-  role,
-  insertColumns as Refine<typeof role, 'insert'>
-)
-export const selectSchema = createSelectSchema(
-  role,
-  selectColumns as Refine<typeof role, 'select'>
-)
+export const insertSchema = createInsertSchema(role, insertColumns)
+export const selectSchema = createSelectSchema(role, selectColumns)
 
 export type InsertParams = Static<typeof insertSchema>
 export type SelectParams = Static<typeof selectSchema>

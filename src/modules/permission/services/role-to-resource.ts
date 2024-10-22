@@ -16,7 +16,7 @@ import { count, eq, gte, like, lte } from 'drizzle-orm'
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
 export const create = async (params: InsertParams) => {
-  const result = await db
+  const result = (await db
     .insert(tableSchema)
     .values({
       ...params,
@@ -24,25 +24,25 @@ export const create = async (params: InsertParams) => {
       updatedAt: Date.now()
     })
     .returning()
-    .get()
+    .get()) as SelectParams
   return result
 }
 
 export const remove = async (params: Pick<SelectParams, typeof primaryKey>) => {
-  const result = await db
+  const result = (await db
     .delete(tableSchema)
     .where(eq(tableSchema[primaryKey], params[primaryKey]))
     .returning()
-    .get()
+    .get()) as SelectParams
   return result
 }
 
 export const get = async (params: Pick<SelectParams, typeof primaryKey>) => {
-  const result = await db
+  const result = (await db
     .select()
     .from(tableSchema)
     .where(eq(tableSchema[primaryKey], params[primaryKey]))
-    .get()
+    .get()) as SelectParams
   return result
 }
 
@@ -96,12 +96,15 @@ export const find = async (
     }
   }
 
-  const records = returnAll
-    ? await recordsDynamic.all()
-    : await recordsDynamic
-        .offset((pageIndex - 1) * pageSize)
-        .limit(pageSize)
-        .all()
+  const records = (
+    returnAll
+      ? await recordsDynamic.all()
+      : await recordsDynamic
+          .offset((pageIndex - 1) * pageSize)
+          .limit(pageSize)
+          .all()
+  ) as SelectParams[]
+
   const total = (await totalDynamic)[0]?.value ?? 0
 
   return {

@@ -1,11 +1,7 @@
 import { baseColumns, baseComments, commonFields } from '@/db/shared/index'
 import { BOOL_MAP, RESOURCE_TYPE } from '@/modules/shared/constants/indext'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import {
-  type Refine,
-  createInsertSchema,
-  createSelectSchema
-} from 'drizzle-typebox'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { type Static, t } from 'elysia'
 
 export const uniqueKey = 'resourceCode'
@@ -88,15 +84,9 @@ const insertColumns = {
 
 const selectColumns = insertColumns
 
-export const insertSchema = createInsertSchema(
-  resource,
-  insertColumns as Refine<typeof resource, 'insert'>
-)
+export const insertSchema = createInsertSchema(resource, insertColumns)
 
-export const selectSchema = createSelectSchema(
-  resource,
-  selectColumns as Refine<typeof resource, 'select'>
-)
+export const selectSchema = createSelectSchema(resource, selectColumns)
 
 export const resourceNodeSchema = t.Recursive(
   self => {
