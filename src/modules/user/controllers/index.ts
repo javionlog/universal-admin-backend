@@ -4,7 +4,7 @@ import {
 } from '@/db/schemas/resource/index'
 import { selectSchema as roleSelectSchema } from '@/db/schemas/role/index'
 import { insertSchema, selectSchema } from '@/db/schemas/user/index'
-import { GuardController } from '@/modules/shared/controllers/index'
+import { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,

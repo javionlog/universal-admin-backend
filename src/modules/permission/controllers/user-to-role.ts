@@ -1,11 +1,11 @@
 import { insertSchema, selectSchema } from '@/db/schemas/user-to-role/index'
+import type { GuardController } from '@/global/controllers/index'
 import { gain as getRole } from '@/modules/permission/services/role'
 import {
   create,
   find,
   remove
 } from '@/modules/permission/services/user-to-role'
-import type { GuardController } from '@/modules/shared/controllers/index'
 import { gain as getUser } from '@/modules/user/services/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'

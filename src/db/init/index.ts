@@ -1,8 +1,8 @@
+import { BOOL_MAP, RESOURCE_TYPE } from '@/global/constants/indext'
 import { create as createResource } from '@/modules/permission/services/resource'
 import { create as createRole } from '@/modules/permission/services/role'
 import { create as createRoleToResource } from '@/modules/permission/services/role-to-resource'
 import { create as createUserToRole } from '@/modules/permission/services/user-to-role'
-import { BOOL_MAP, RESOURCE_TYPE } from '@/modules/shared/constants/indext'
 import { create as createUser } from '@/modules/user/services/index'
 import { password } from 'bun'
 

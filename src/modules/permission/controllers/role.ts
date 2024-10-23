@@ -1,4 +1,5 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role/index'
+import type { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,
@@ -6,7 +7,6 @@ import {
   remove,
   update
 } from '@/modules/permission/services/role'
-import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 

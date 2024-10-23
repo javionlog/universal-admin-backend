@@ -1,4 +1,5 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
+import type { GuardController } from '@/global/controllers/index'
 import { gain as getResource } from '@/modules/permission/services/resource'
 import { gain as getRole } from '@/modules/permission/services/role'
 import {
@@ -6,7 +7,6 @@ import {
   find,
   remove
 } from '@/modules/permission/services/role-to-resource'
-import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 

@@ -1,6 +1,6 @@
 import { roleToResource } from '@/db/schemas/role-to-resource/index'
 import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
-import { BOOL_MAP, RESOURCE_TYPE } from '@/modules/shared/constants/indext'
+import { BOOL_MAP, RESOURCE_TYPE } from '@/global/constants/indext'
 import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'

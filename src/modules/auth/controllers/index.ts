@@ -1,8 +1,8 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
 import { selectSchema as selectUserSchema } from '@/db/schemas/user/index'
+import { BaseController } from '@/global/controllers/index'
+import { getExpTimestamp } from '@/global/libs/index'
 import { authDerive } from '@/modules/auth/plugins/index'
-import { BaseController } from '@/modules/shared/controllers/index'
-import { getExpTimestamp } from '@/modules/shared/libs/index'
 import {
   gainSensitive as getSensitiveUser,
   gain as getUser,

@@ -1,7 +1,7 @@
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
-} from '@/modules/shared/constants/indext'
+} from '@/global/constants/indext'
 import { t } from 'elysia'
 
 export const PageSchema = t.Partial(

@@ -7,8 +7,8 @@ import {
 import {
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
-} from '@/modules/shared/constants/indext'
-import { isEmpty } from '@/modules/shared/libs/index'
+} from '@/global/constants/indext'
+import { isEmpty } from '@/global/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import {
   type SQLWrapper,

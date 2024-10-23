@@ -1,4 +1,4 @@
-import { GuardController } from '@/modules/shared/controllers/index'
+import { GuardController } from '@/global/controllers/index'
 import { ResourceController } from './resource'
 import { RoleController } from './role'
 import { RoleToResourceController } from './role-to-resource'

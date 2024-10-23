@@ -1,4 +1,4 @@
-import { BOOL_MAP } from '@/modules/shared/constants/indext'
+import { BOOL_MAP } from '@/global/constants/indext'
 import { integer, text } from 'drizzle-orm/sqlite-core'
 import { t } from 'elysia'
 

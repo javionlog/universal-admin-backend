@@ -3,6 +3,7 @@ import {
   resourceNodeSchema,
   selectSchema
 } from '@/db/schemas/resource/index'
+import type { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,
@@ -11,7 +12,6 @@ import {
   remove,
   update
 } from '@/modules/permission/services/resource'
-import type { GuardController } from '@/modules/shared/controllers/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
