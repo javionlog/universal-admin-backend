@@ -8,6 +8,7 @@ import { type Static, t } from 'elysia'
 
 export const resource = sqliteTable('resource', {
   ...baseFields,
+  status: text('status').notNull().default(BOOL_MAP.no),
   parentId: integer('parent_id').notNull(),
   resourceCode: text('resource_code').unique().notNull(),
   resourceName: text('resource_name').notNull(),
@@ -24,12 +25,13 @@ export const resource = sqliteTable('resource', {
 
 export const resourceRelation = relations(resource, ({ many }) => {
   return {
-    roleToResource: many(roleToResource)
+    roles: many(roleToResource)
   }
 })
 
 export const schemaComments = {
   ...baseComments,
+  status: '状态，启用(Y)/禁用(N)',
   parentId: '父 ID',
   resourceCode: '资源编码',
   resourceName: '资源名称',
@@ -46,6 +48,10 @@ export const schemaComments = {
 
 const insertColumns = {
   ...baseColumns,
+  status: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+    description: schemaComments.status,
+    default: BOOL_MAP.no
+  }),
   parentId: t.Number({ description: schemaComments.parentId, default: 0 }),
   resourceCode: t.String({ description: schemaComments.resourceCode }),
   resourceName: t.String({ description: schemaComments.resourceName }),

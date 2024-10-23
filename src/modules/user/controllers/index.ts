@@ -151,7 +151,7 @@ export const Controller = GuardController.group('/user', app => {
         ]),
         response: {
           200: t.Object({
-            records: t.Array(selectSchema),
+            records: t.Array(t.Omit(selectSchema, ['password'])),
             total: t.Number()
           })
         }
@@ -166,11 +166,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}拥有的角色列表` },
-        body: t.Composite([
-          t.Pick(selectSchema, ['username']),
-          t.Partial(t.Pick(roleSelectSchema, ['status'])),
-          PageSchema
-        ]),
+        body: t.Composite([t.Pick(selectSchema, ['username']), PageSchema]),
         response: {
           200: t.Object({
             records: t.Array(roleSelectSchema),
@@ -188,10 +184,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}拥有的角色全部` },
-        body: t.Composite([
-          t.Pick(selectSchema, ['username']),
-          t.Partial(t.Pick(roleSelectSchema, ['status']))
-        ]),
+        body: t.Composite([t.Pick(selectSchema, ['username'])]),
         response: {
           200: t.Object({
             records: t.Array(roleSelectSchema),
@@ -209,11 +202,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}拥有的资源列表` },
-        body: t.Composite([
-          t.Pick(selectSchema, ['username']),
-          t.Partial(t.Pick(resourceSelectSchema, ['status'])),
-          PageSchema
-        ]),
+        body: t.Composite([t.Pick(selectSchema, ['username']), PageSchema]),
         response: {
           200: t.Object({
             records: t.Array(resourceSelectSchema),
@@ -231,10 +220,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}拥有的资源全部` },
-        body: t.Composite([
-          t.Pick(selectSchema, ['username']),
-          t.Partial(t.Pick(resourceSelectSchema, ['status']))
-        ]),
+        body: t.Composite([t.Pick(selectSchema, ['username'])]),
         response: {
           200: t.Object({
             records: t.Array(resourceSelectSchema),

@@ -1,8 +1,12 @@
+import { selectSchema as resourceSelectSchema } from '@/db/schemas/resource/index'
 import { insertSchema, selectSchema } from '@/db/schemas/role/index'
+import { selectSchema as userSelectSchema } from '@/db/schemas/user/index'
 import type { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,
+  findResources,
+  findUsers,
   get,
   remove,
   update
@@ -99,8 +103,8 @@ export const RoleController = (app: typeof GuardController) => {
           return result
         },
         {
-          detail: { summary: '角色列表' },
-          tags: ['Permission'],
+          tags,
+          detail: { summary: `${summaryPrefix}列表` },
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['id', 'createdAt', 'updatedAt'])),
             PageSchema,
@@ -109,6 +113,99 @@ export const RoleController = (app: typeof GuardController) => {
           response: {
             200: t.Object({
               records: t.Array(selectSchema),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAll',
+        async ({ body }) => {
+          const result = await find(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}全部` },
+          body: t.Composite([
+            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
+            TimeRangeSchema
+          ]),
+          response: {
+            200: t.Object({
+              records: t.Array(selectSchema),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findUsers',
+        async ({ body }) => {
+          const result = await findUsers(body)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的用户列表` },
+          body: t.Composite([t.Pick(selectSchema, ['roleCode']), PageSchema]),
+          response: {
+            200: t.Object({
+              records: t.Array(t.Omit(userSelectSchema, ['password'])),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAllUsers',
+        async ({ body }) => {
+          const result = await findUsers(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的用户全部` },
+          body: t.Composite([t.Pick(selectSchema, ['roleCode'])]),
+          response: {
+            200: t.Object({
+              records: t.Array(t.Omit(userSelectSchema, ['password'])),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findResources',
+        async ({ body }) => {
+          const result = await findResources(body)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的资源列表` },
+          body: t.Composite([t.Pick(selectSchema, ['roleCode']), PageSchema]),
+          response: {
+            200: t.Object({
+              records: t.Array(resourceSelectSchema),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAllResources',
+        async ({ body }) => {
+          const result = await findResources(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的资源全部` },
+          body: t.Composite([t.Pick(selectSchema, ['roleCode'])]),
+          response: {
+            200: t.Object({
+              records: t.Array(resourceSelectSchema),
               total: t.Number()
             })
           }

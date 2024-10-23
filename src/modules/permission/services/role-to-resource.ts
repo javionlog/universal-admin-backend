@@ -32,7 +32,7 @@ export const remove = async (params: Pick<SelectParams, 'id'>) => {
     .delete(tableSchema)
     .where(eq(tableSchema.id, params.id))
     .returning()
-    .get()) as SelectParams
+    .get()) as SelectParams | undefined
   return result
 }
 
@@ -41,7 +41,7 @@ export const get = async (params: Pick<SelectParams, 'id'>) => {
     .select()
     .from(tableSchema)
     .where(eq(tableSchema.id, params.id))
-    .get()) as SelectParams
+    .get()) as SelectParams | undefined
   return result
 }
 

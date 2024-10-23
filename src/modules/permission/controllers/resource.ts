@@ -3,11 +3,15 @@ import {
   resourceNodeSchema,
   selectSchema
 } from '@/db/schemas/resource/index'
+import { selectSchema as roleSelectSchema } from '@/db/schemas/role/index'
+import { selectSchema as userSelectSchema } from '@/db/schemas/user/index'
 import type { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,
+  findRoles,
   findTree,
+  findUsers,
   get,
   remove,
   update
@@ -153,6 +157,84 @@ export const ResourceController = (app: typeof GuardController) => {
           detail: { summary: `${summaryPrefix}树` },
           response: {
             200: t.Array(resourceNodeSchema)
+          }
+        }
+      )
+      .post(
+        '/findUsers',
+        async ({ body }) => {
+          const result = await findUsers(body)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的用户列表` },
+          body: t.Composite([
+            t.Pick(selectSchema, ['resourceCode']),
+            PageSchema
+          ]),
+          response: {
+            200: t.Object({
+              records: t.Array(t.Omit(userSelectSchema, ['password'])),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAllUsers',
+        async ({ body }) => {
+          const result = await findUsers(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的用户全部` },
+          body: t.Composite([t.Pick(selectSchema, ['resourceCode'])]),
+          response: {
+            200: t.Object({
+              records: t.Array(t.Omit(userSelectSchema, ['password'])),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findRoles',
+        async ({ body }) => {
+          const result = await findRoles(body)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的角色列表` },
+          body: t.Composite([
+            t.Pick(selectSchema, ['resourceCode']),
+            PageSchema
+          ]),
+          response: {
+            200: t.Object({
+              records: t.Array(roleSelectSchema),
+              total: t.Number()
+            })
+          }
+        }
+      )
+      .post(
+        '/findAllRoles',
+        async ({ body }) => {
+          const result = await findRoles(body, true)
+          return result
+        },
+        {
+          tags,
+          detail: { summary: `${summaryPrefix}拥有的角色全部` },
+          body: t.Composite([t.Pick(selectSchema, ['resourceCode'])]),
+          response: {
+            200: t.Object({
+              records: t.Array(roleSelectSchema),
+              total: t.Number()
+            })
           }
         }
       )

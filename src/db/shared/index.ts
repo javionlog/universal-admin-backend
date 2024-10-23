@@ -4,7 +4,7 @@ import { t } from 'elysia'
 
 export const baseFields = {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  status: text('status').notNull().default(BOOL_MAP.no),
+
   remark: text('remark'),
   sort: integer('sort').notNull().default(0),
   delFlag: text('del_flag').notNull().default(BOOL_MAP.no),
@@ -15,7 +15,6 @@ export const baseFields = {
 }
 
 export const baseComments = {
-  status: '状态，启用(Y)/禁用(N)',
   remark: '备注',
   sort: '排序',
   delFlag: '删除标记，已删除(Y)/未删除(N)',
@@ -26,10 +25,6 @@ export const baseComments = {
 }
 
 export const baseColumns = {
-  status: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
-    description: baseComments.status,
-    default: BOOL_MAP.no
-  }),
   remark: t.Union([
     t.Null(),
     t.String({

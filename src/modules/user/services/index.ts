@@ -62,7 +62,7 @@ export const remove = async (params: Pick<SelectParams, 'id'>) => {
     .delete(tableSchema)
     .where(eq(tableSchema.id, params.id))
     .returning()
-    .get()) as SelectParams
+    .get()) as SelectParams | undefined
   return result ? omitObject(result, ['password']) : result
 }
 
@@ -71,7 +71,7 @@ export const getSensitive = async (params: Pick<SelectParams, 'id'>) => {
     .select()
     .from(tableSchema)
     .where(eq(tableSchema.id, params.id))
-    .get()) as SelectParams
+    .get()) as SelectParams | undefined
   return result
 }
 
@@ -80,7 +80,7 @@ export const gainSensitive = async (params: Pick<SelectParams, 'username'>) => {
     .select()
     .from(tableSchema)
     .where(eq(tableSchema.username, params.username))
-    .get()) as SelectParams
+    .get()) as SelectParams | undefined
   return result
 }
 
@@ -159,7 +159,7 @@ export const find = async (
           .offset((pageIndex - 1) * pageSize)
           .limit(pageSize)
           .all()
-  ) as SelectParams[]
+  ) as Omit<SelectParams, 'password'>[]
 
   const total = (await totalDynamic)[0]?.value ?? 0
 
@@ -170,9 +170,7 @@ export const find = async (
 }
 
 export const findRoles = async (
-  params: PageParams &
-    Pick<SelectParams, 'username'> &
-    Partial<Pick<RoleSelectParams, 'status'>>,
+  params: PageParams & Pick<SelectParams, 'username'>,
   returnAll?: boolean
 ) => {
   const {
@@ -206,10 +204,6 @@ export const findRoles = async (
     inArray(roleTableSchema.roleCode, roleCodes)
   ]
 
-  if (restParams.status) {
-    whereFilters.push(eq(roleTableSchema.status, restParams.status))
-  }
-
   recordsDynamic.where(and(...whereFilters))
   totalDynamic.where(and(...whereFilters))
 
@@ -231,9 +225,7 @@ export const findRoles = async (
 }
 
 export const findResources = async (
-  params: PageParams &
-    Pick<SelectParams, 'username'> &
-    Partial<Pick<ResourceSelectParams, 'status'>>,
+  params: PageParams & Pick<SelectParams, 'username'>,
   returnAll?: boolean
 ) => {
   const {
@@ -277,10 +269,6 @@ export const findResources = async (
   const whereFilters: SQLWrapper[] = [
     inArray(resourceTableSchema.resourceCode, resourceCodes)
   ]
-
-  if (restParams.status) {
-    whereFilters.push(eq(resourceTableSchema.status, restParams.status))
-  }
 
   recordsDynamic.where(and(...whereFilters))
   totalDynamic.where(and(...whereFilters))

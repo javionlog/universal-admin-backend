@@ -1,9 +1,11 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
+import { resourceNodeSchema } from '@/db/schemas/resource/index'
 import { selectSchema as selectUserSchema } from '@/db/schemas/user/index'
 import { BaseController } from '@/global/controllers/index'
 import { getExpTimestamp } from '@/global/libs/index'
 import { authDerive } from '@/modules/auth/plugins/index'
 import {
+  findResourceTree,
   gainSensitive as getSensitiveUser,
   gain as getUser,
   update as updateUser
@@ -70,10 +72,14 @@ export const Controller = BaseController.group('/auth', app => {
           maxAge: REFRESH_TOKEN_EXP,
           path: '/'
         })
+
+        const resourceTree = await findResourceTree({ username: user.username })
+
         return {
           username: user.username,
           accessToken: accessJwtToken,
-          refreshToken: refreshJwtToken
+          refreshToken: refreshJwtToken,
+          resourceTree
         }
       },
       {
@@ -85,7 +91,8 @@ export const Controller = BaseController.group('/auth', app => {
             t.Pick(selectUserSchema, ['username']),
             t.Object({
               accessToken: t.String(),
-              refreshToken: t.String()
+              refreshToken: t.String(),
+              resourceTree: t.Array(resourceNodeSchema)
             })
           ])
         }

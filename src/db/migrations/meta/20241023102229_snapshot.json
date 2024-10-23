@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "996ab2f9-251d-4450-9db8-58d986c0f28c",
+  "id": "098eb07b-768f-4069-8160-f11e8843a7fa",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "resource": {
@@ -13,14 +13,6 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'N'"
         },
         "remark": {
           "name": "remark",
@@ -51,7 +43,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "updated_at": {
           "name": "updated_at",
@@ -59,7 +51,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "created_by": {
           "name": "created_by",
@@ -74,6 +66,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'N'"
         },
         "parent_id": {
           "name": "parent_id",
@@ -181,14 +181,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'N'"
-        },
         "remark": {
           "name": "remark",
           "type": "text",
@@ -218,7 +210,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "updated_at": {
           "name": "updated_at",
@@ -226,7 +218,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "created_by": {
           "name": "created_by",
@@ -297,14 +289,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'N'"
-        },
         "remark": {
           "name": "remark",
           "type": "text",
@@ -334,7 +318,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "updated_at": {
           "name": "updated_at",
@@ -342,7 +326,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "created_by": {
           "name": "created_by",
@@ -357,6 +341,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'N'"
         },
         "role_code": {
           "name": "role_code",
@@ -394,14 +386,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'N'"
-        },
         "remark": {
           "name": "remark",
           "type": "text",
@@ -431,7 +415,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "updated_at": {
           "name": "updated_at",
@@ -439,7 +423,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "created_by": {
           "name": "created_by",
@@ -510,14 +494,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'N'"
-        },
         "remark": {
           "name": "remark",
           "type": "text",
@@ -547,7 +523,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "updated_at": {
           "name": "updated_at",
@@ -555,7 +531,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729592747042
+          "default": 1729678949077
         },
         "created_by": {
           "name": "created_by",
@@ -570,6 +546,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'N'"
         },
         "username": {
           "name": "username",

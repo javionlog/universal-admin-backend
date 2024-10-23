@@ -8,6 +8,7 @@ import { type Static, t } from 'elysia'
 
 export const user = sqliteTable('user', {
   ...baseFields,
+  status: text('status').notNull().default(BOOL_MAP.no),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
   isAdmin: text('is_admin').notNull().default(BOOL_MAP.no),
@@ -22,6 +23,7 @@ export const userRelation = relations(user, ({ many }) => {
 
 export const schemaComments = {
   ...baseComments,
+  status: '状态，启用(Y)/禁用(N)',
   username: '用户名',
   password: '密码',
   isAdmin: '是否管理员，是(Y)/否(N)',
@@ -30,6 +32,10 @@ export const schemaComments = {
 
 const insertColumns = {
   ...baseColumns,
+  status: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+    description: schemaComments.status,
+    default: BOOL_MAP.no
+  }),
   username: t.String({ description: schemaComments.username }),
   password: t.String({ description: schemaComments.password }),
   isAdmin: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
