@@ -150,7 +150,7 @@ export const ResourceController = (app: typeof GuardController) => {
         },
         {
           tags,
-          detail: { summary: `${summaryPrefix}树状` },
+          detail: { summary: `${summaryPrefix}树` },
           response: {
             200: t.Array(resourceNodeSchema)
           }

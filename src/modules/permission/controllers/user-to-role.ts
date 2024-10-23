@@ -1,6 +1,10 @@
 import { insertSchema, selectSchema } from '@/db/schemas/user-to-role/index'
 import { gain as getRole } from '@/modules/permission/services/role'
-import { create, find } from '@/modules/permission/services/user-to-role'
+import {
+  create,
+  find,
+  remove
+} from '@/modules/permission/services/user-to-role'
 import type { GuardController } from '@/modules/shared/controllers/index'
 import { gain as getUser } from '@/modules/user/services/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
@@ -39,6 +43,27 @@ export const UserToRoleController = (app: typeof GuardController) => {
           tags,
           detail: { summary: '授权角色给用户' },
           body: insertSchema,
+          response: {
+            200: selectSchema
+          }
+        }
+      )
+      .post(
+        '/remove',
+        async ({ set, body }) => {
+          const result = await remove({
+            id: body.id
+          })
+          if (!result) {
+            set.status = 'Bad Request'
+            throw new Error('Can not find user to role')
+          }
+          return result
+        },
+        {
+          tags,
+          detail: { summary: '删除用户角色' },
+          body: t.Pick(selectSchema, ['id']),
           response: {
             200: selectSchema
           }

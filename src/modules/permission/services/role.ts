@@ -10,7 +10,7 @@ import {
 } from '@/modules/shared/constants/indext'
 import { isEmpty, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, gte, like, lte } from 'drizzle-orm'
+import { type SQLWrapper, and, count, eq, gte, like, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
@@ -79,6 +79,7 @@ export const find = async (
     .select({ value: count() })
     .from(tableSchema)
     .$dynamic()
+  const whereFilters: SQLWrapper[] = []
 
   for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
@@ -87,33 +88,31 @@ export const find = async (
     if (!isEmpty(val)) {
       switch (key) {
         case 'createdFrom': {
-          recordsDynamic.where(gte(tableSchema.createdAt, val as number))
-          totalDynamic.where(gte(tableSchema.createdAt, val as number))
+          whereFilters.push(gte(tableSchema.createdAt, val as number))
           break
         }
         case 'createdTo': {
-          recordsDynamic.where(lte(tableSchema.createdAt, val as number))
-          totalDynamic.where(lte(tableSchema.createdAt, val as number))
+          whereFilters.push(lte(tableSchema.createdAt, val as number))
           break
         }
         case 'updatedFrom': {
-          recordsDynamic.where(gte(tableSchema.updatedAt, val as number))
-          totalDynamic.where(gte(tableSchema.updatedAt, val as number))
+          whereFilters.push(gte(tableSchema.updatedAt, val as number))
           break
         }
         case 'updatedTo': {
-          recordsDynamic.where(lte(tableSchema.updatedAt, val as number))
-          totalDynamic.where(lte(tableSchema.updatedAt, val as number))
+          whereFilters.push(lte(tableSchema.updatedAt, val as number))
           break
         }
         default: {
-          recordsDynamic.where(like(tableSchema[key], `%${val}%`))
-          totalDynamic.where(like(tableSchema[key], `%${val}%`))
+          whereFilters.push(like(tableSchema[key], `%${val}%`))
           break
         }
       }
     }
   }
+
+  recordsDynamic.where(and(...whereFilters))
+  totalDynamic.where(and(...whereFilters))
 
   const records = (
     returnAll

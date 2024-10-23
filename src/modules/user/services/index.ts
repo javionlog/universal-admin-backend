@@ -1,16 +1,35 @@
 import { db } from '@/db/index'
 import {
+  type SelectParams as ResourceSelectParams,
+  resource as resourceTableSchema
+} from '@/db/schemas/resource/index'
+import {
+  type SelectParams as RoleSelectParams,
+  role as roleTableSchema
+} from '@/db/schemas/role/index'
+import {
   type InsertParams,
   type SelectParams,
   user as tableSchema
 } from '@/db/schemas/user/index'
 import {
+  BOOL_MAP,
   DEFAULT_PAGE_INDEXX,
   DEFAULT_PAGE_SIZE
 } from '@/modules/shared/constants/indext'
-import { isEmpty, omitObject } from '@/modules/shared/libs/index'
+import { isEmpty, listToTree, omitObject } from '@/modules/shared/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
-import { count, eq, getTableColumns, gte, like, lte } from 'drizzle-orm'
+import {
+  type SQLWrapper,
+  and,
+  count,
+  eq,
+  getTableColumns,
+  gte,
+  inArray,
+  like,
+  lte
+} from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
@@ -98,6 +117,7 @@ export const find = async (
     .select({ value: count() })
     .from(tableSchema)
     .$dynamic()
+  const whereFilters: SQLWrapper[] = []
 
   for (const k of Object.keys(restParams)) {
     type Key = keyof typeof restParams
@@ -106,33 +126,31 @@ export const find = async (
     if (!isEmpty(val)) {
       switch (key) {
         case 'createdFrom': {
-          recordsDynamic.where(gte(tableSchema.createdAt, val as number))
-          totalDynamic.where(gte(tableSchema.createdAt, val as number))
+          whereFilters.push(gte(tableSchema.createdAt, val as number))
           break
         }
         case 'createdTo': {
-          recordsDynamic.where(lte(tableSchema.createdAt, val as number))
-          totalDynamic.where(lte(tableSchema.createdAt, val as number))
+          whereFilters.push(lte(tableSchema.createdAt, val as number))
           break
         }
         case 'updatedFrom': {
-          recordsDynamic.where(gte(tableSchema.updatedAt, val as number))
-          totalDynamic.where(gte(tableSchema.updatedAt, val as number))
+          whereFilters.push(gte(tableSchema.updatedAt, val as number))
           break
         }
         case 'updatedTo': {
-          recordsDynamic.where(lte(tableSchema.updatedAt, val as number))
-          totalDynamic.where(lte(tableSchema.updatedAt, val as number))
+          whereFilters.push(lte(tableSchema.updatedAt, val as number))
           break
         }
         default: {
-          recordsDynamic.where(like(tableSchema[key], `%${val}%`))
-          totalDynamic.where(like(tableSchema[key], `%${val}%`))
+          whereFilters.push(like(tableSchema[key], `%${val}%`))
           break
         }
       }
     }
   }
+
+  recordsDynamic.where(and(...whereFilters))
+  totalDynamic.where(and(...whereFilters))
 
   const records = (
     returnAll
@@ -149,4 +167,182 @@ export const find = async (
     records,
     total
   }
+}
+
+export const findRoles = async (
+  params: PageParams &
+    Pick<SelectParams, 'username'> &
+    Partial<Pick<RoleSelectParams, 'status'>>,
+  returnAll?: boolean
+) => {
+  const {
+    pageIndex = DEFAULT_PAGE_INDEXX,
+    pageSize = DEFAULT_PAGE_SIZE,
+    ...restParams
+  } = params
+  const userItem = await db.query.user.findFirst({
+    with: {
+      roles: true
+    },
+    where: () => eq(tableSchema.username, restParams.username)
+  })
+
+  if (!userItem) {
+    return {
+      records: [],
+      total: 0
+    }
+  }
+
+  const roleCodes = userItem.roles.map(o => o.roleCode)
+
+  const recordsDynamic = db.select().from(roleTableSchema).$dynamic()
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(roleTableSchema)
+    .$dynamic()
+
+  const whereFilters: SQLWrapper[] = [
+    inArray(roleTableSchema.roleCode, roleCodes)
+  ]
+
+  if (restParams.status) {
+    whereFilters.push(eq(roleTableSchema.status, restParams.status))
+  }
+
+  recordsDynamic.where(and(...whereFilters))
+  totalDynamic.where(and(...whereFilters))
+
+  const records = (
+    returnAll
+      ? await recordsDynamic.all()
+      : await recordsDynamic
+          .offset((pageIndex - 1) * pageSize)
+          .limit(pageSize)
+          .all()
+  ) as RoleSelectParams[]
+
+  const total = (await totalDynamic)[0]?.value ?? 0
+
+  return {
+    records,
+    total
+  }
+}
+
+export const findResources = async (
+  params: PageParams &
+    Pick<SelectParams, 'username'> &
+    Partial<Pick<ResourceSelectParams, 'status'>>,
+  returnAll?: boolean
+) => {
+  const {
+    pageIndex = DEFAULT_PAGE_INDEXX,
+    pageSize = DEFAULT_PAGE_SIZE,
+    ...restParams
+  } = params
+  const userItem = await db.query.user.findFirst({
+    with: {
+      roles: true
+    },
+    where: () => eq(tableSchema.username, restParams.username)
+  })
+
+  if (!userItem) {
+    return {
+      records: [],
+      total: 0
+    }
+  }
+
+  const roleCodes = userItem.roles.map(o => o.roleCode)
+
+  const roleList = await db.query.role.findMany({
+    with: {
+      resources: true
+    },
+    where: fields => inArray(fields.roleCode, roleCodes)
+  })
+
+  const resourceCodes = roleList
+    .flatMap(o => o.resources)
+    .map(o => o.resourceCode)
+
+  const recordsDynamic = db.select().from(resourceTableSchema).$dynamic()
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(resourceTableSchema)
+    .$dynamic()
+
+  const whereFilters: SQLWrapper[] = [
+    inArray(resourceTableSchema.resourceCode, resourceCodes)
+  ]
+
+  if (restParams.status) {
+    whereFilters.push(eq(resourceTableSchema.status, restParams.status))
+  }
+
+  recordsDynamic.where(and(...whereFilters))
+  totalDynamic.where(and(...whereFilters))
+
+  const records = (
+    returnAll
+      ? await recordsDynamic.all()
+      : await recordsDynamic
+          .offset((pageIndex - 1) * pageSize)
+          .limit(pageSize)
+          .all()
+  ) as ResourceSelectParams[]
+
+  const total = (await totalDynamic)[0]?.value ?? 0
+
+  return {
+    records,
+    total
+  }
+}
+
+export const findResourceTree = async (
+  params: Pick<SelectParams, 'username'>
+) => {
+  const userItem = await db.query.user.findFirst({
+    with: {
+      roles: true
+    },
+    where: () => eq(tableSchema.username, params.username)
+  })
+
+  if (!userItem || userItem.roles.length === 0) {
+    return []
+  }
+
+  const roleCodes = userItem.roles.map(o => o.roleCode)
+
+  const roleList = await db.query.role.findMany({
+    with: {
+      resources: true
+    },
+    where: fields =>
+      and(inArray(fields.roleCode, roleCodes), eq(fields.status, BOOL_MAP.yes))
+  })
+
+  const resourceCodes = roleList
+    .flatMap(o => o.resources)
+    .map(o => o.resourceCode)
+
+  const resources = (await db.query.resource.findMany({
+    where: fields =>
+      and(
+        inArray(fields.resourceCode, resourceCodes),
+        eq(fields.status, BOOL_MAP.yes),
+        eq(fields.isHide, BOOL_MAP.no)
+      ),
+    orderBy: fileds => fileds.sort
+  })) as ResourceSelectParams[]
+
+  const result = listToTree(resources, {
+    judgeParentIdFn: item => item.parentId === 0
+  })
+
+  return result
 }

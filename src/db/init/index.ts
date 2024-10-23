@@ -8,29 +8,57 @@ import { password } from 'bun'
 
 const init = async () => {
   const adminUsername = 'admin'
-  const adminPassword = '123456'
   const adminRoleCode = 'Admin'
 
   const guestUsername = 'guest'
-  const guestPassword = '123456'
   const guestRoleCode = 'Guest'
 
-  const byFields = { createdBy: adminUsername, updatedBy: adminUsername }
+  const commonFields = {
+    createdBy: adminUsername,
+    updatedBy: adminUsername,
+    status: BOOL_MAP.yes
+  }
   const resourceFileds = {
     isLink: BOOL_MAP.no,
     isCache: BOOL_MAP.yes,
     isAffix: BOOL_MAP.yes,
-    isHide: BOOL_MAP.yes,
+    isHide: BOOL_MAP.no,
     status: BOOL_MAP.yes
   }
-  const adminHashPassword = await password.hash(adminPassword, {
-    algorithm: 'bcrypt',
-    cost: 10
-  })
-  const guestHashPassword = await password.hash(guestPassword, {
-    algorithm: 'bcrypt',
-    cost: 10
-  })
+
+  const users = [
+    {
+      username: adminUsername,
+      password: password.hashSync('123456', {
+        algorithm: 'bcrypt',
+        cost: 10
+      }),
+      isAdmin: BOOL_MAP.yes,
+      ...commonFields
+    },
+    {
+      username: guestUsername,
+      password: password.hashSync('123456', {
+        algorithm: 'bcrypt',
+        cost: 10
+      }),
+      ...commonFields
+    }
+  ]
+
+  const roles = [
+    {
+      roleCode: adminRoleCode,
+      roleName: '管理员',
+      ...commonFields
+    },
+    {
+      roleCode: guestRoleCode,
+      roleName: '访客',
+      ...commonFields
+    }
+  ]
+
   const resources = [
     {
       parentId: 0,
@@ -41,7 +69,8 @@ const init = async () => {
       isCache: BOOL_MAP.no,
       isAffix: BOOL_MAP.no,
       isHide: BOOL_MAP.no,
-      ...byFields
+      sort: 0,
+      ...commonFields
     },
     {
       parentId: 0,
@@ -52,7 +81,8 @@ const init = async () => {
       isCache: BOOL_MAP.no,
       isAffix: BOOL_MAP.no,
       isHide: BOOL_MAP.no,
-      ...byFields
+      sort: 1,
+      ...commonFields
     },
     {
       parentId: 1,
@@ -60,8 +90,9 @@ const init = async () => {
       resourceName: '用户管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/user',
+      sort: 2,
       ...resourceFileds,
-      ...byFields
+      ...commonFields
     },
     {
       parentId: 1,
@@ -69,8 +100,9 @@ const init = async () => {
       resourceName: '角色管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/role',
+      sort: 3,
       ...resourceFileds,
-      ...byFields
+      ...commonFields
     },
     {
       parentId: 1,
@@ -78,8 +110,9 @@ const init = async () => {
       resourceName: '资源管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/resource',
+      sort: 4,
       ...resourceFileds,
-      ...byFields
+      ...commonFields
     },
     {
       parentId: 2,
@@ -87,65 +120,56 @@ const init = async () => {
       resourceName: '测试页面',
       resourceType: RESOURCE_TYPE.page,
       path: '/test/index',
+      sort: 5,
       ...resourceFileds,
-      ...byFields
+      ...commonFields
     }
   ]
 
-  await createUser({
-    username: adminUsername,
-    password: adminHashPassword,
-    isAdmin: BOOL_MAP.yes,
-    ...byFields
-  })
-  await createUser({
-    username: guestUsername,
-    password: guestHashPassword,
-    ...byFields
-  })
-  await createRole({
-    roleCode: adminRoleCode,
-    roleName: '管理员',
-    ...byFields
-  })
-  await createRole({
-    roleCode: guestRoleCode,
-    roleName: '访客',
-    ...byFields
-  })
-  await createUserToRole({
-    username: adminUsername,
-    roleCode: adminRoleCode,
-    ...byFields
-  })
-  await createUserToRole({
-    username: adminUsername,
-    roleCode: guestRoleCode,
-    ...byFields
-  })
-  await createUserToRole({
-    username: guestUsername,
-    roleCode: guestRoleCode,
-    ...byFields
-  })
+  for (const user of users) {
+    await createUser(user)
+  }
+
+  for (const role of roles) {
+    await createRole(role)
+    if (role.roleCode === adminRoleCode) {
+      await createUserToRole({
+        username: adminUsername,
+        roleCode: role.roleCode,
+        ...commonFields
+      })
+    } else {
+      await createUserToRole({
+        username: adminUsername,
+        roleCode: role.roleCode,
+        ...commonFields
+      })
+      await createUserToRole({
+        username: guestUsername,
+        roleCode: role.roleCode,
+        ...commonFields
+      })
+    }
+  }
+
   for (const resource of resources) {
     await createResource(resource)
     if (resource.resourceCode.includes('Permission')) {
       await createRoleToResource({
         roleCode: adminRoleCode,
         resourceCode: resource.resourceCode,
-        ...byFields
+        ...commonFields
       })
     } else {
       await createRoleToResource({
         roleCode: adminRoleCode,
         resourceCode: resource.resourceCode,
-        ...byFields
+        ...commonFields
       })
       await createRoleToResource({
         roleCode: guestRoleCode,
         resourceCode: resource.resourceCode,
-        ...byFields
+        ...commonFields
       })
     }
   }

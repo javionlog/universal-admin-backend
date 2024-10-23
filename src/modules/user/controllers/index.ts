@@ -1,8 +1,16 @@
+import {
+  resourceNodeSchema,
+  selectSchema as resourceSelectSchema
+} from '@/db/schemas/resource/index'
+import { selectSchema as roleSelectSchema } from '@/db/schemas/role/index'
 import { insertSchema, selectSchema } from '@/db/schemas/user/index'
 import { GuardController } from '@/modules/shared/controllers/index'
 import {
   create,
   find,
+  findResourceTree,
+  findResources,
+  findRoles,
   get,
   remove,
   update
@@ -105,7 +113,7 @@ export const Controller = GuardController.group('/user', app => {
         return result
       },
       {
-        detail: { summary: '用户列表' },
+        detail: { summary: `${summaryPrefix}列表` },
         tags: ['User'],
         body: t.Composite([
           t.Partial(
@@ -125,6 +133,128 @@ export const Controller = GuardController.group('/user', app => {
             records: t.Array(t.Omit(selectSchema, ['password'])),
             total: t.Number()
           })
+        }
+      }
+    )
+    .post(
+      '/findAll',
+      async ({ body }) => {
+        const result = await find(body, true)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}全部` },
+        body: t.Composite([
+          t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
+          TimeRangeSchema
+        ]),
+        response: {
+          200: t.Object({
+            records: t.Array(selectSchema),
+            total: t.Number()
+          })
+        }
+      }
+    )
+    .post(
+      '/findRoles',
+      async ({ body }) => {
+        const result = await findRoles(body)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}拥有的角色列表` },
+        body: t.Composite([
+          t.Pick(selectSchema, ['username']),
+          t.Partial(t.Pick(roleSelectSchema, ['status'])),
+          PageSchema
+        ]),
+        response: {
+          200: t.Object({
+            records: t.Array(roleSelectSchema),
+            total: t.Number()
+          })
+        }
+      }
+    )
+    .post(
+      '/findAllRoles',
+      async ({ body }) => {
+        const result = await findRoles(body, true)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}拥有的角色全部` },
+        body: t.Composite([
+          t.Pick(selectSchema, ['username']),
+          t.Partial(t.Pick(roleSelectSchema, ['status']))
+        ]),
+        response: {
+          200: t.Object({
+            records: t.Array(roleSelectSchema),
+            total: t.Number()
+          })
+        }
+      }
+    )
+    .post(
+      '/findResources',
+      async ({ body }) => {
+        const result = await findResources(body)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}拥有的资源列表` },
+        body: t.Composite([
+          t.Pick(selectSchema, ['username']),
+          t.Partial(t.Pick(resourceSelectSchema, ['status'])),
+          PageSchema
+        ]),
+        response: {
+          200: t.Object({
+            records: t.Array(resourceSelectSchema),
+            total: t.Number()
+          })
+        }
+      }
+    )
+    .post(
+      '/findAllResources',
+      async ({ body }) => {
+        const result = await findResources(body, true)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}拥有的资源全部` },
+        body: t.Composite([
+          t.Pick(selectSchema, ['username']),
+          t.Partial(t.Pick(resourceSelectSchema, ['status']))
+        ]),
+        response: {
+          200: t.Object({
+            records: t.Array(resourceSelectSchema),
+            total: t.Number()
+          })
+        }
+      }
+    )
+    .post(
+      '/findResourceTree',
+      async ({ body }) => {
+        const result = await findResourceTree(body)
+        return result
+      },
+      {
+        tags,
+        detail: { summary: `${summaryPrefix}资源树` },
+        body: t.Pick(selectSchema, ['username']),
+        response: {
+          200: t.Array(resourceNodeSchema)
         }
       }
     )
