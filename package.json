@@ -2,11 +2,16 @@
   "name": "universal-admin-backend",
   "version": "0.0.1",
   "description": "Universal admin backend",
-  "keywords": ["universal", "admin", "backend"],
   "author": "javionlog",
   "license": "MIT",
   "main": "src/main.ts",
   "type": "module",
+  "keywords": ["universal", "admin", "backend", "typescript"],
+  "bugs": "https://github.com/javionlog/universal-admin-backend/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/javionlog/universal-admin-backend.git"
+  },
   "scripts": {
     "prepare": "husky",
     "test": "echo \"Error: no test specified\" && exit 1",
