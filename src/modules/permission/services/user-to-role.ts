@@ -9,6 +9,8 @@ import {
   DEFAULT_PAGE_SIZE
 } from '@/global/constants/indext'
 import { isEmpty } from '@/global/libs/index'
+import { get as getRole } from '@/modules/permission/services/role'
+import { get as getUser } from '@/modules/user/services/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import {
   type SQLWrapper,
@@ -24,6 +26,18 @@ import {
 export type FindParams = SelectParams & TimeRangeParams & PageParams
 
 export const create = async (params: InsertParams) => {
+  const userItem = await getUser({
+    username: params.username
+  })
+  if (!userItem) {
+    throw new Error('Can not find user')
+  }
+  const roleItem = await getRole({
+    roleCode: params.roleCode
+  })
+  if (!roleItem) {
+    throw new Error('Can not find role')
+  }
   const result = (await db
     .insert(tableSchema)
     .values({
@@ -39,7 +53,7 @@ export const create = async (params: InsertParams) => {
 export const remove = async (
   params: Pick<SelectParams, 'username' | 'roleCode'>
 ) => {
-  const result = (await db
+  const result = await db
     .delete(tableSchema)
     .where(
       and(
@@ -48,13 +62,16 @@ export const remove = async (
       )
     )
     .returning()
-    .get()) as SelectParams | undefined
-  return result
+    .get()
+  if (!result) {
+    throw new Error('Can not find user to role')
+  }
+  return result as SelectParams
 }
 
 export const find = async (
   params: Partial<FindParams>,
-  returnAll?: boolean
+  config?: { isReturnAll?: boolean }
 ) => {
   const columns = getTableColumns(tableSchema)
   const {
@@ -62,11 +79,7 @@ export const find = async (
     pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
-  const recordsDynamic = db.select(columns).from(tableSchema).$dynamic()
-  const totalDynamic = db
-    .select({ value: count() })
-    .from(tableSchema)
-    .$dynamic()
+
   const whereFilters: SQLWrapper[] = []
 
   for (const k of Object.keys(restParams)) {
@@ -99,11 +112,17 @@ export const find = async (
     }
   }
 
-  recordsDynamic.where(and(...whereFilters))
-  totalDynamic.where(and(...whereFilters))
+  const recordsDynamic = db
+    .select(columns)
+    .from(tableSchema)
+    .where(and(...whereFilters))
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(tableSchema)
+    .where(and(...whereFilters))
 
   const records = (
-    returnAll
+    config?.isReturnAll
       ? await recordsDynamic.all()
       : await recordsDynamic
           .offset((pageIndex - 1) * pageSize)

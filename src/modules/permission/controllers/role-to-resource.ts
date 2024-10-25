@@ -1,13 +1,11 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
 import type { GuardController } from '@/global/controllers/index'
-import { get as getResource } from '@/modules/permission/services/resource'
-import { get as getRole } from '@/modules/permission/services/role'
 import {
   create,
   find,
   remove
 } from '@/modules/permission/services/role-to-resource'
-import { PageSchema, TimeRangeSchema } from '@/schematics/index'
+import { PageSchema, QueryAllSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
 const tags = ['Permission']
@@ -17,21 +15,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
     return ins
       .post(
         '/create',
-        async ({ set, body, user }) => {
-          const roleResult = await getRole({
-            roleCode: body.roleCode
-          })
-          if (!roleResult) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find role')
-          }
-          const resourceResult = await getResource({
-            resourceCode: body.resourceCode
-          })
-          if (!resourceResult) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find resource')
-          }
+        async ({ body, user }) => {
           const result = await create({
             ...body,
             createdBy: user.username,
@@ -50,12 +34,8 @@ export const RoleToResourceController = (app: typeof GuardController) => {
       )
       .post(
         '/remove',
-        async ({ set, body }) => {
+        async ({ body }) => {
           const result = await remove(body)
-          if (!result) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find role to resource')
-          }
           return result
         },
         {
@@ -70,7 +50,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
       .post(
         '/find',
         async ({ body }) => {
-          const result = await find(body)
+          const result = await find(body, { isReturnAll: body.isReturnAll })
           return result
         },
         {
@@ -78,29 +58,9 @@ export const RoleToResourceController = (app: typeof GuardController) => {
           detail: { summary: '角色资源关系列表' },
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
+            QueryAllSchema,
             TimeRangeSchema,
             PageSchema
-          ]),
-          response: {
-            200: t.Object({
-              records: t.Array(selectSchema),
-              total: t.Number()
-            })
-          }
-        }
-      )
-      .post(
-        '/findAll',
-        async ({ body }) => {
-          const result = await find(body, true)
-          return result
-        },
-        {
-          tags,
-          detail: { summary: '角色资源关系全部' },
-          body: t.Composite([
-            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
-            TimeRangeSchema
           ]),
           response: {
             200: t.Object({

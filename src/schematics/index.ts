@@ -25,3 +25,7 @@ export const TimeRangeSchema = t.Partial(
     updatedTo: t.Number({ description: '更新时间结束' })
   })
 )
+
+export const QueryAllSchema = t.Partial(
+  t.Object({ isReturnAll: t.Boolean({ description: '是否返回全部数据' }) })
+)

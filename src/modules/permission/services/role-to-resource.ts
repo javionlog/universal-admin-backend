@@ -9,12 +9,26 @@ import {
   DEFAULT_PAGE_SIZE
 } from '@/global/constants/indext'
 import { isEmpty } from '@/global/libs/index'
+import { get as getResource } from '@/modules/permission/services/resource'
+import { get as getRole } from '@/modules/permission/services/role'
 import type { PageParams, TimeRangeParams } from '@/types/index'
 import { type SQLWrapper, and, count, eq, gte, like, lte } from 'drizzle-orm'
 
 export type FindParams = SelectParams & PageParams & TimeRangeParams
 
 export const create = async (params: InsertParams) => {
+  const roleItem = await getRole({
+    roleCode: params.roleCode
+  })
+  if (!roleItem) {
+    throw new Error('Can not find role')
+  }
+  const resourceItem = await getResource({
+    resourceCode: params.resourceCode
+  })
+  if (!resourceItem) {
+    throw new Error('Can not find resource')
+  }
   const result = (await db
     .insert(tableSchema)
     .values({
@@ -30,7 +44,7 @@ export const create = async (params: InsertParams) => {
 export const remove = async (
   params: Pick<SelectParams, 'roleCode' | 'resourceCode'>
 ) => {
-  const result = (await db
+  const result = await db
     .delete(tableSchema)
     .where(
       and(
@@ -39,24 +53,22 @@ export const remove = async (
       )
     )
     .returning()
-    .get()) as SelectParams | undefined
-  return result
+    .get()
+  if (!result) {
+    throw new Error('Can not find role to resource')
+  }
+  return result as SelectParams
 }
 
 export const find = async (
   params: Partial<FindParams>,
-  returnAll?: boolean
+  config?: { isReturnAll?: boolean }
 ) => {
   const {
     pageIndex = DEFAULT_PAGE_INDEXX,
     pageSize = DEFAULT_PAGE_SIZE,
     ...restParams
   } = params
-  const recordsDynamic = db.select().from(tableSchema).$dynamic()
-  const totalDynamic = db
-    .select({ value: count() })
-    .from(tableSchema)
-    .$dynamic()
   const whereFilters: SQLWrapper[] = []
 
   for (const k of Object.keys(restParams)) {
@@ -89,11 +101,17 @@ export const find = async (
     }
   }
 
-  recordsDynamic.where(and(...whereFilters))
-  totalDynamic.where(and(...whereFilters))
+  const recordsDynamic = db
+    .select()
+    .from(tableSchema)
+    .where(and(...whereFilters))
+  const totalDynamic = db
+    .select({ value: count() })
+    .from(tableSchema)
+    .where(and(...whereFilters))
 
   const records = (
-    returnAll
+    config?.isReturnAll
       ? await recordsDynamic.all()
       : await recordsDynamic
           .offset((pageIndex - 1) * pageSize)

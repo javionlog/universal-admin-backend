@@ -9,17 +9,16 @@ import type { GuardController } from '@/global/controllers/index'
 import {
   create,
   find,
-  findRoles,
   findTree,
-  findUsers,
   get,
+  getRoles,
+  getUsers,
   remove,
   update
 } from '@/modules/permission/services/resource'
-import { PageSchema, TimeRangeSchema } from '@/schematics/index'
+import { PageSchema, QueryAllSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
-const notFoundMessage = 'Can not find resource'
 const summaryPrefix = '资源'
 const tags = ['Permission']
 
@@ -65,12 +64,8 @@ export const ResourceController = (app: typeof GuardController) => {
       )
       .post(
         '/remove',
-        async ({ set, body }) => {
+        async ({ body }) => {
           const result = await remove(body)
-          if (!result) {
-            set.status = 'Bad Request'
-            throw new Error(notFoundMessage)
-          }
           return result
         },
         {
@@ -84,12 +79,8 @@ export const ResourceController = (app: typeof GuardController) => {
       )
       .post(
         '/get',
-        async ({ set, body }) => {
+        async ({ body }) => {
           const result = await get(body)
-          if (!result) {
-            set.status = 'Bad Request'
-            throw new Error(notFoundMessage)
-          }
           return result
         },
         {
@@ -104,7 +95,7 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/find',
         async ({ body }) => {
-          const result = await find(body)
+          const result = await find(body, { isReturnAll: body.isReturnAll })
           return result
         },
         {
@@ -112,29 +103,9 @@ export const ResourceController = (app: typeof GuardController) => {
           detail: { summary: `${summaryPrefix}列表` },
           body: t.Composite([
             t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
+            QueryAllSchema,
             TimeRangeSchema,
             PageSchema
-          ]),
-          response: {
-            200: t.Object({
-              records: t.Array(selectSchema),
-              total: t.Number()
-            })
-          }
-        }
-      )
-      .post(
-        '/findAll',
-        async ({ body }) => {
-          const result = await find(body, true)
-          return result
-        },
-        {
-          tags,
-          detail: { summary: `${summaryPrefix}全部` },
-          body: t.Composite([
-            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
-            TimeRangeSchema
           ]),
           response: {
             200: t.Object({
@@ -163,16 +134,17 @@ export const ResourceController = (app: typeof GuardController) => {
         }
       )
       .post(
-        '/findUsers',
+        '/getUsers',
         async ({ body }) => {
-          const result = await findUsers(body)
+          const result = await getUsers(body, { isReturnAll: body.isReturnAll })
           return result
         },
         {
           tags,
-          detail: { summary: `${summaryPrefix}拥有的用户列表` },
+          detail: { summary: `获取${summaryPrefix}的用户列表` },
           body: t.Composite([
             t.Pick(selectSchema, ['resourceCode']),
+            QueryAllSchema,
             PageSchema
           ]),
           response: {
@@ -184,54 +156,19 @@ export const ResourceController = (app: typeof GuardController) => {
         }
       )
       .post(
-        '/findAllUsers',
+        '/getRoles',
         async ({ body }) => {
-          const result = await findUsers(body, true)
+          const result = await getRoles(body, { isReturnAll: body.isReturnAll })
           return result
         },
         {
           tags,
-          detail: { summary: `${summaryPrefix}拥有的用户全部` },
-          body: t.Composite([t.Pick(selectSchema, ['resourceCode'])]),
-          response: {
-            200: t.Object({
-              records: t.Array(t.Omit(userSelectSchema, ['password'])),
-              total: t.Number()
-            })
-          }
-        }
-      )
-      .post(
-        '/findRoles',
-        async ({ body }) => {
-          const result = await findRoles(body)
-          return result
-        },
-        {
-          tags,
-          detail: { summary: `${summaryPrefix}拥有的角色列表` },
+          detail: { summary: `获取${summaryPrefix}的角色列表` },
           body: t.Composite([
             t.Pick(selectSchema, ['resourceCode']),
+            QueryAllSchema,
             PageSchema
           ]),
-          response: {
-            200: t.Object({
-              records: t.Array(roleSelectSchema),
-              total: t.Number()
-            })
-          }
-        }
-      )
-      .post(
-        '/findAllRoles',
-        async ({ body }) => {
-          const result = await findRoles(body, true)
-          return result
-        },
-        {
-          tags,
-          detail: { summary: `${summaryPrefix}拥有的角色全部` },
-          body: t.Composite([t.Pick(selectSchema, ['resourceCode'])]),
           response: {
             200: t.Object({
               records: t.Array(roleSelectSchema),

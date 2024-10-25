@@ -1,12 +1,10 @@
 import { insertSchema, selectSchema } from '@/db/schemas/user-to-role/index'
 import type { GuardController } from '@/global/controllers/index'
-import { get as getRole } from '@/modules/permission/services/role'
 import {
   create,
   find,
   remove
 } from '@/modules/permission/services/user-to-role'
-import { get as getUser } from '@/modules/user/services/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
@@ -17,21 +15,7 @@ export const UserToRoleController = (app: typeof GuardController) => {
     return ins
       .post(
         '/create',
-        async ({ set, body, user }) => {
-          const userResult = await getUser({
-            username: body.username
-          })
-          if (!userResult) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find user')
-          }
-          const roleResult = await getRole({
-            roleCode: body.roleCode
-          })
-          if (!roleResult) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find role')
-          }
+        async ({ body, user }) => {
           const result = await create({
             ...body,
             createdBy: user.username,
@@ -50,12 +34,8 @@ export const UserToRoleController = (app: typeof GuardController) => {
       )
       .post(
         '/remove',
-        async ({ set, body }) => {
+        async ({ body }) => {
           const result = await remove(body)
-          if (!result) {
-            set.status = 'Bad Request'
-            throw new Error('Can not find user to role')
-          }
           return result
         },
         {
@@ -92,7 +72,7 @@ export const UserToRoleController = (app: typeof GuardController) => {
       .post(
         '/findAll',
         async ({ body }) => {
-          const result = await find(body, true)
+          const result = await find(body, { isReturnAll: true })
           return result
         },
         {
