@@ -36,20 +36,18 @@ export const create = async (params: InsertParams) => {
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, 'id'>) => {
+export const remove = async (
+  params: Pick<SelectParams, 'username' | 'roleCode'>
+) => {
   const result = (await db
     .delete(tableSchema)
-    .where(eq(tableSchema.id, params.id))
+    .where(
+      and(
+        eq(tableSchema.username, params.username),
+        eq(tableSchema.roleCode, params.roleCode)
+      )
+    )
     .returning()
-    .get()) as SelectParams | undefined
-  return result
-}
-
-export const get = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .select()
-    .from(tableSchema)
-    .where(eq(tableSchema.id, params.id))
     .get()) as SelectParams | undefined
   return result
 }

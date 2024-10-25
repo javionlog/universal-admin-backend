@@ -56,35 +56,38 @@ export const create = async (params: InsertParams) => {
 }
 
 export const update = async (params: SelectParams) => {
-  const restParams = omitObject(params, ['id'])
+  const restParams = omitObject(params, ['resourceCode'])
   const result = (await db
     .update(tableSchema)
     .set(restParams)
-    .where(eq(tableSchema.id, params.id))
+    .where(eq(tableSchema.resourceCode, params.resourceCode))
     .returning()
     .get()) as SelectParams
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, 'id'>) => {
+export const remove = async (params: Pick<SelectParams, 'resourceCode'>) => {
+  const resourceItem = await db.query.resource.findFirst({
+    with: {
+      roles: true
+    },
+    where: () => eq(tableSchema.resourceCode, params.resourceCode)
+  })
+  if (resourceItem?.roles && resourceItem.roles.length > 0) {
+    throw new Error(
+      'The resource is referenced by some roles and can not be deleted'
+    )
+  }
   const result = (await db
     .delete(tableSchema)
-    .where(eq(tableSchema.id, params.id))
+    .where(eq(tableSchema.resourceCode, params.resourceCode))
     .returning()
     .get()) as SelectParams | undefined
+
   return result
 }
 
-export const get = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .select()
-    .from(tableSchema)
-    .where(eq(tableSchema.id, params.id))
-    .get()) as SelectParams | undefined
-  return result
-}
-
-export const gain = async (params: Pick<SelectParams, 'resourceCode'>) => {
+export const get = async (params: Pick<SelectParams, 'resourceCode'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
@@ -159,8 +162,8 @@ export const find = async (
   }
 }
 
-export const findTree = async () => {
-  const { records } = await find({}, true)
+export const findTree = async (params: Partial<FindParams>) => {
+  const { records } = await find(params, true)
   const result = listToTree(records, {
     judgeParentIdFn: item => item.parentId === 0
   })

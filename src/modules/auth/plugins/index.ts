@@ -4,7 +4,7 @@ import {
   REFRESH_JWT_NAME,
   REFRESH_JWT_SECRET
 } from '@/config/index'
-import { gain as getUser } from '@/modules/user/services/index'
+import { get as getUser } from '@/modules/user/services/index'
 import jwt from '@elysiajs/jwt'
 import type { Elysia } from 'elysia'
 

@@ -67,9 +67,7 @@ export const Controller = GuardController.group('/user', app => {
     .post(
       '/remove',
       async ({ set, body }) => {
-        const result = await remove({
-          id: body.id
-        })
+        const result = await remove(body)
         if (!result) {
           set.status = 'Bad Request'
           throw new Error(notFoundMessage)
@@ -79,7 +77,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}删除` },
-        body: t.Pick(selectSchema, ['id']),
+        body: t.Pick(selectSchema, ['username']),
         response: {
           200: t.Omit(selectSchema, ['password'])
         }
@@ -88,9 +86,7 @@ export const Controller = GuardController.group('/user', app => {
     .post(
       '/get',
       async ({ set, body }) => {
-        const result = await get({
-          id: body.id
-        })
+        const result = await get(body)
         if (!result) {
           set.status = 'Bad Request'
           throw new Error(notFoundMessage)
@@ -100,7 +96,7 @@ export const Controller = GuardController.group('/user', app => {
       {
         tags,
         detail: { summary: `${summaryPrefix}信息` },
-        body: t.Pick(selectSchema, ['id']),
+        body: t.Pick(selectSchema, ['username']),
         response: {
           200: t.Omit(selectSchema, ['password'])
         }

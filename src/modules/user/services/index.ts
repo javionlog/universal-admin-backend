@@ -3,10 +3,12 @@ import {
   type SelectParams as ResourceSelectParams,
   resource as resourceTableSchema
 } from '@/db/schemas/resource/index'
+import { roleToResource as roleToResourceTableSchema } from '@/db/schemas/role-to-resource/index'
 import {
   type SelectParams as RoleSelectParams,
   role as roleTableSchema
 } from '@/db/schemas/role/index'
+import { userToRole as userToRoleTableSchema } from '@/db/schemas/user-to-role/index'
 import {
   type InsertParams,
   type SelectParams,
@@ -57,25 +59,55 @@ export const update = async (params: SelectParams) => {
   return omitObject(result, ['password'])
 }
 
-export const remove = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .delete(tableSchema)
-    .where(eq(tableSchema.id, params.id))
-    .returning()
-    .get()) as SelectParams | undefined
+export const remove = async (params: Pick<SelectParams, 'username'>) => {
+  const result = await db.transaction(async tx => {
+    const userItem = await tx.query.user.findFirst({
+      with: {
+        roles: true
+      },
+      where: () => eq(tableSchema.username, params.username)
+    })
+    if (userItem?.roles && userItem.roles.length > 0) {
+      const roleCodes = userItem.roles.map(o => o.roleCode)
+      const roleList = await tx.query.role.findMany({
+        with: {
+          resources: true
+        },
+        where: fields => inArray(fields.roleCode, roleCodes)
+      })
+
+      const resourceCodes = roleList
+        .flatMap(o => o.resources)
+        .map(o => o.resourceCode)
+      if (resourceCodes.length > 0) {
+        await tx
+          .delete(roleToResourceTableSchema)
+          .where(
+            and(
+              inArray(roleToResourceTableSchema.roleCode, roleCodes),
+              inArray(roleToResourceTableSchema.resourceCode, resourceCodes)
+            )
+          )
+      }
+      await tx
+        .delete(userToRoleTableSchema)
+        .where(
+          and(
+            eq(userToRoleTableSchema.username, params.username),
+            inArray(userToRoleTableSchema.roleCode, roleCodes)
+          )
+        )
+    }
+    return (await tx
+      .delete(tableSchema)
+      .where(eq(tableSchema.username, params.username))
+      .returning()
+      .get()) as SelectParams | undefined
+  })
   return result ? omitObject(result, ['password']) : result
 }
 
-export const getSensitive = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .select()
-    .from(tableSchema)
-    .where(eq(tableSchema.id, params.id))
-    .get()) as SelectParams | undefined
-  return result
-}
-
-export const gainSensitive = async (params: Pick<SelectParams, 'username'>) => {
+export const getSensitive = async (params: Pick<SelectParams, 'username'>) => {
   const result = (await db
     .select()
     .from(tableSchema)
@@ -84,17 +116,8 @@ export const gainSensitive = async (params: Pick<SelectParams, 'username'>) => {
   return result
 }
 
-export const get = async (params: Pick<SelectParams, 'id'>) => {
+export const get = async (params: Pick<SelectParams, 'username'>) => {
   const result = await getSensitive(params)
-  if (result) {
-    const { password, ...rest } = result
-    return rest
-  }
-  return result
-}
-
-export const gain = async (params: Pick<SelectParams, 'username'>) => {
-  const result = await gainSensitive(params)
   if (result) {
     const { password, ...rest } = result
     return rest

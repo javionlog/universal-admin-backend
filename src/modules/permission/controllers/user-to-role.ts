@@ -1,12 +1,12 @@
 import { insertSchema, selectSchema } from '@/db/schemas/user-to-role/index'
 import type { GuardController } from '@/global/controllers/index'
-import { gain as getRole } from '@/modules/permission/services/role'
+import { get as getRole } from '@/modules/permission/services/role'
 import {
   create,
   find,
   remove
 } from '@/modules/permission/services/user-to-role'
-import { gain as getUser } from '@/modules/user/services/index'
+import { get as getUser } from '@/modules/user/services/index'
 import { PageSchema, TimeRangeSchema } from '@/schematics/index'
 import { t } from 'elysia'
 
@@ -51,9 +51,7 @@ export const UserToRoleController = (app: typeof GuardController) => {
       .post(
         '/remove',
         async ({ set, body }) => {
-          const result = await remove({
-            id: body.id
-          })
+          const result = await remove(body)
           if (!result) {
             set.status = 'Bad Request'
             throw new Error('Can not find user to role')
@@ -63,7 +61,7 @@ export const UserToRoleController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: '删除用户角色' },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['username', 'roleCode']),
           response: {
             200: selectSchema
           }

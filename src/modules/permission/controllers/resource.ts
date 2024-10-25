@@ -66,9 +66,7 @@ export const ResourceController = (app: typeof GuardController) => {
       .post(
         '/remove',
         async ({ set, body }) => {
-          const result = await remove({
-            id: body.id
-          })
+          const result = await remove(body)
           if (!result) {
             set.status = 'Bad Request'
             throw new Error(notFoundMessage)
@@ -78,7 +76,7 @@ export const ResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}删除` },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['resourceCode']),
           response: {
             200: selectSchema
           }
@@ -97,7 +95,7 @@ export const ResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}信息` },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['resourceCode']),
           response: {
             200: selectSchema
           }
@@ -148,13 +146,17 @@ export const ResourceController = (app: typeof GuardController) => {
       )
       .post(
         '/findTree',
-        async () => {
-          const result = await findTree()
+        async ({ body }) => {
+          const result = await findTree(body)
           return result
         },
         {
           tags,
           detail: { summary: `${summaryPrefix}树` },
+          body: t.Composite([
+            t.Partial(t.Omit(selectSchema, ['createdAt', 'updatedAt'])),
+            TimeRangeSchema
+          ]),
           response: {
             200: t.Array(resourceNodeSchema)
           }

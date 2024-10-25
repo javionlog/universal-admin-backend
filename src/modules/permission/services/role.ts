@@ -3,6 +3,7 @@ import {
   type SelectParams as ResourceSelectParams,
   resource as resourceTableSchema
 } from '@/db/schemas/resource/index'
+import { roleToResource as roleToResourceTableSchema } from '@/db/schemas/role-to-resource/index'
 import {
   type InsertParams,
   type SelectParams,
@@ -46,35 +47,51 @@ export const create = async (params: InsertParams) => {
 }
 
 export const update = async (params: SelectParams) => {
-  const restParams = omitObject(params, ['id'])
+  const restParams = omitObject(params, ['roleCode'])
   const result = (await db
     .update(tableSchema)
     .set(restParams)
-    .where(eq(tableSchema.id, params.id))
+    .where(eq(tableSchema.roleCode, params.roleCode))
     .returning()
     .get()) as SelectParams
   return result
 }
 
-export const remove = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .delete(tableSchema)
-    .where(eq(tableSchema.id, params.id))
-    .returning()
-    .get()) as SelectParams | undefined
+export const remove = async (params: Pick<SelectParams, 'roleCode'>) => {
+  const roleItem = await db.query.role.findFirst({
+    with: {
+      users: true,
+      resources: true
+    },
+    where: () => eq(tableSchema.roleCode, params.roleCode)
+  })
+  if (roleItem?.users && roleItem.users.length > 0) {
+    throw new Error(
+      'The role is referenced by some users and can not be deleted'
+    )
+  }
+  const result = await db.transaction(async tx => {
+    if (roleItem?.resources && roleItem.resources.length > 0) {
+      const resourceCodes = roleItem.resources.map(o => o.resourceCode)
+      await tx
+        .delete(roleToResourceTableSchema)
+        .where(
+          and(
+            eq(roleToResourceTableSchema.roleCode, params.roleCode),
+            inArray(roleToResourceTableSchema.resourceCode, resourceCodes)
+          )
+        )
+    }
+    return (await tx
+      .delete(tableSchema)
+      .where(eq(tableSchema.roleCode, params.roleCode))
+      .returning()
+      .get()) as SelectParams | undefined
+  })
   return result
 }
 
-export const get = async (params: Pick<SelectParams, 'id'>) => {
-  const result = (await db
-    .select()
-    .from(tableSchema)
-    .where(eq(tableSchema.id, params.id))
-    .get()) as SelectParams | undefined
-  return result
-}
-
-export const gain = async (params: Pick<SelectParams, 'roleCode'>) => {
+export const get = async (params: Pick<SelectParams, 'roleCode'>) => {
   const result = (await db
     .select()
     .from(tableSchema)

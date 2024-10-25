@@ -1,7 +1,7 @@
 import { insertSchema, selectSchema } from '@/db/schemas/role-to-resource/index'
 import type { GuardController } from '@/global/controllers/index'
-import { gain as getResource } from '@/modules/permission/services/resource'
-import { gain as getRole } from '@/modules/permission/services/role'
+import { get as getResource } from '@/modules/permission/services/resource'
+import { get as getRole } from '@/modules/permission/services/role'
 import {
   create,
   find,
@@ -51,9 +51,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
       .post(
         '/remove',
         async ({ set, body }) => {
-          const result = await remove({
-            id: body.id
-          })
+          const result = await remove(body)
           if (!result) {
             set.status = 'Bad Request'
             throw new Error('Can not find role to resource')
@@ -63,7 +61,7 @@ export const RoleToResourceController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: '删除角色资源' },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['roleCode', 'resourceCode']),
           response: {
             200: selectSchema
           }

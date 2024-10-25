@@ -63,7 +63,8 @@ const init = async () => {
     {
       parentId: 0,
       resourceCode: 'Permission',
-      resourceName: '权限管理',
+      resourceNameEn: 'Permission Management',
+      resourceNameZhCn: '权限管理',
       resourceType: RESOURCE_TYPE.menu,
       isLink: BOOL_MAP.no,
       isCache: BOOL_MAP.no,
@@ -75,7 +76,8 @@ const init = async () => {
     {
       parentId: 0,
       resourceCode: 'Test',
-      resourceName: '测试管理',
+      resourceNameEn: 'Test Management',
+      resourceNameZhCn: '测试管理',
       resourceType: RESOURCE_TYPE.menu,
       isLink: BOOL_MAP.no,
       isCache: BOOL_MAP.no,
@@ -87,7 +89,8 @@ const init = async () => {
     {
       parentId: 1,
       resourceCode: 'PermissionUser',
-      resourceName: '用户管理',
+      resourceNameEn: 'User Management',
+      resourceNameZhCn: '用户管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/user',
       sort: 2,
@@ -97,7 +100,8 @@ const init = async () => {
     {
       parentId: 1,
       resourceCode: 'PermissionRole',
-      resourceName: '角色管理',
+      resourceNameEn: 'Role Management',
+      resourceNameZhCn: '角色管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/role',
       sort: 3,
@@ -107,7 +111,8 @@ const init = async () => {
     {
       parentId: 1,
       resourceCode: 'PermissionResource',
-      resourceName: '资源管理',
+      resourceNameEn: 'Resource Management',
+      resourceNameZhCn: '资源管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/resource',
       sort: 4,
@@ -117,7 +122,8 @@ const init = async () => {
     {
       parentId: 2,
       resourceCode: 'TestPage',
-      resourceName: '测试页面',
+      resourceNameEn: 'Test Page',
+      resourceNameZhCn: '测试页面',
       resourceType: RESOURCE_TYPE.page,
       path: '/test/index',
       sort: 5,

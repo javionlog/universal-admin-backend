@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "098eb07b-768f-4069-8160-f11e8843a7fa",
+  "id": "8ab6aca8-52a3-461b-9a6a-2a4509377949",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "resource": {
@@ -43,7 +43,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "updated_at": {
           "name": "updated_at",
@@ -51,7 +51,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "created_by": {
           "name": "created_by",
@@ -89,8 +89,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "resource_name": {
-          "name": "resource_name",
+        "resource_name_en": {
+          "name": "resource_name_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resource_name_zh_cn": {
+          "name": "resource_name_zh_cn",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -210,7 +217,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "updated_at": {
           "name": "updated_at",
@@ -218,7 +225,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "created_by": {
           "name": "created_by",
@@ -318,7 +325,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "updated_at": {
           "name": "updated_at",
@@ -326,7 +333,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "created_by": {
           "name": "created_by",
@@ -415,7 +422,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "updated_at": {
           "name": "updated_at",
@@ -423,7 +430,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "created_by": {
           "name": "created_by",
@@ -523,7 +530,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "updated_at": {
           "name": "updated_at",
@@ -531,7 +538,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1729678949077
+          "default": 1729826524765
         },
         "created_by": {
           "name": "created_by",

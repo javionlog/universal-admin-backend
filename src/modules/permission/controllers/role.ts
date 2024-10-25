@@ -61,7 +61,7 @@ export const RoleController = (app: typeof GuardController) => {
       .post(
         '/remove',
         async ({ set, body }) => {
-          const result = await remove({ id: body.id })
+          const result = await remove(body)
           if (!result) {
             set.status = 'Bad Request'
             throw new Error(notFoundMessage)
@@ -71,7 +71,7 @@ export const RoleController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}删除` },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['roleCode']),
           response: {
             200: selectSchema
           }
@@ -90,7 +90,7 @@ export const RoleController = (app: typeof GuardController) => {
         {
           tags,
           detail: { summary: `${summaryPrefix}信息` },
-          body: t.Pick(selectSchema, ['id']),
+          body: t.Pick(selectSchema, ['roleCode']),
           response: {
             200: selectSchema
           }

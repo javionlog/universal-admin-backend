@@ -6,8 +6,8 @@ import { getExpTimestamp } from '@/global/libs/index'
 import { authDerive } from '@/modules/auth/plugins/index'
 import {
   findResourceTree,
-  gainSensitive as getSensitiveUser,
-  gain as getUser,
+  getSensitive as getSensitiveUser,
+  get as getUser,
   update as updateUser
 } from '@/modules/user/services/index'
 import { password } from 'bun'
