@@ -69,16 +69,10 @@ const insertColumns = {
       default: RESOURCE_TYPE.menu
     }
   ),
-  path: t.Union([t.Null(), t.String({ description: schemaComments.path })]),
-  activePath: t.Union([
-    t.Null(),
-    t.String({ description: schemaComments.activePath })
-  ]),
-  component: t.Union([
-    t.Null(),
-    t.String({ description: schemaComments.component })
-  ]),
-  icon: t.Union([t.Null(), t.String({ description: schemaComments.icon })]),
+  path: t.String({ description: schemaComments.path }),
+  activePath: t.String({ description: schemaComments.activePath }),
+  component: t.String({ description: schemaComments.component }),
+  icon: t.String({ description: schemaComments.icon }),
   isLink: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
     description: schemaComments.isLink,
     default: BOOL_MAP.no
