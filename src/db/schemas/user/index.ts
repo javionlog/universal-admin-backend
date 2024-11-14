@@ -1,6 +1,6 @@
 import { userToRole } from '@/db/schemas/user-to-role/index'
 import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
-import { BOOL_MAP } from '@/global/constants/indext'
+import { WHETHER_TYPE } from '@/global/constants/indext'
 import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
@@ -8,10 +8,10 @@ import { type Static, t } from 'elysia'
 
 export const user = sqliteTable('user', {
   ...baseFields,
-  status: text('status').notNull().default(BOOL_MAP.no),
+  status: text('status').notNull().default(WHETHER_TYPE.no),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
-  isAdmin: text('is_admin').notNull().default(BOOL_MAP.no),
+  isAdmin: text('is_admin').notNull().default(WHETHER_TYPE.no),
   lastSignInAt: integer('last_sign_in_at')
 })
 
@@ -32,15 +32,15 @@ export const schemaComments = {
 
 const insertColumns = {
   ...baseColumns,
-  status: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  status: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.status,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
   username: t.String({ description: schemaComments.username }),
   password: t.String({ description: schemaComments.password }),
-  isAdmin: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  isAdmin: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.isAdmin,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
   lastSignInAt: t.Number({ description: schemaComments.lastSignInAt })
 }

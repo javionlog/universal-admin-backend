@@ -1,6 +1,7 @@
 import { ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } from '@/config/index'
 import { resourceNodeSchema } from '@/db/schemas/resource/index'
 import { selectSchema as selectUserSchema } from '@/db/schemas/user/index'
+import { WHETHER_TYPE } from '@/global/constants/indext'
 import { BaseController } from '@/global/controllers/index'
 import { getExpTimestamp } from '@/global/libs/index'
 import { authDerive } from '@/modules/auth/plugins/index'
@@ -43,6 +44,11 @@ export const Controller = BaseController.group('/auth', app => {
           throw new Error(invalidUserMessage)
         }
 
+        if (user.status === WHETHER_TYPE.no) {
+          set.status = 'Not Acceptable'
+          throw new Error('User disabled')
+        }
+
         try {
           updateUser({ ...user, lastSignInAt: Date.now() })
         } catch {
@@ -76,7 +82,9 @@ export const Controller = BaseController.group('/auth', app => {
         const resourceTree = await findResourceTree({ username: user.username })
 
         return {
-          username: user.username,
+          userInfo: {
+            username: user.username
+          },
           accessToken: accessJwtToken,
           refreshToken: refreshJwtToken,
           resourceTree
@@ -87,14 +95,12 @@ export const Controller = BaseController.group('/auth', app => {
         tags: ['Auth'],
         body: t.Pick(selectUserSchema, ['username', 'password']),
         response: {
-          200: t.Composite([
-            t.Pick(selectUserSchema, ['username']),
-            t.Object({
-              accessToken: t.String(),
-              refreshToken: t.String(),
-              resourceTree: t.Array(resourceNodeSchema)
-            })
-          ])
+          200: t.Object({
+            accessToken: t.String(),
+            refreshToken: t.String(),
+            resourceTree: t.Array(resourceNodeSchema),
+            userInfo: t.Pick(selectUserSchema, ['username'])
+          })
         }
       }
     )

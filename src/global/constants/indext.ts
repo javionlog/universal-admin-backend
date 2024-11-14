@@ -2,7 +2,7 @@ export const DEFAULT_PAGE_INDEXX = 1
 
 export const DEFAULT_PAGE_SIZE = 10
 
-export const BOOL_MAP = {
+export const WHETHER_TYPE = {
   yes: 'Y',
   no: 'N'
 } as const

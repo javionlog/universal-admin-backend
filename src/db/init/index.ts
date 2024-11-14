@@ -1,4 +1,4 @@
-import { BOOL_MAP, RESOURCE_TYPE } from '@/global/constants/indext'
+import { RESOURCE_TYPE, WHETHER_TYPE } from '@/global/constants/indext'
 import { create as createResource } from '@/modules/permission/services/resource'
 import { create as createRole } from '@/modules/permission/services/role'
 import { create as createRoleToResource } from '@/modules/permission/services/role-to-resource'
@@ -16,14 +16,14 @@ const init = async () => {
   const commonFields = {
     createdBy: adminUsername,
     updatedBy: adminUsername,
-    status: BOOL_MAP.yes
+    status: WHETHER_TYPE.yes
   }
   const resourceFileds = {
-    isLink: BOOL_MAP.no,
-    isCache: BOOL_MAP.yes,
-    isAffix: BOOL_MAP.yes,
-    isHide: BOOL_MAP.no,
-    status: BOOL_MAP.yes
+    isLink: WHETHER_TYPE.no,
+    isCache: WHETHER_TYPE.yes,
+    isAffix: WHETHER_TYPE.no,
+    isHide: WHETHER_TYPE.no,
+    status: WHETHER_TYPE.yes
   }
 
   const users = [
@@ -33,7 +33,7 @@ const init = async () => {
         algorithm: 'bcrypt',
         cost: 10
       }),
-      isAdmin: BOOL_MAP.yes,
+      isAdmin: WHETHER_TYPE.yes,
       ...commonFields
     },
     {
@@ -66,24 +66,11 @@ const init = async () => {
       resourceNameEn: 'Permission Management',
       resourceNameZhCn: '权限管理',
       resourceType: RESOURCE_TYPE.menu,
-      isLink: BOOL_MAP.no,
-      isCache: BOOL_MAP.no,
-      isAffix: BOOL_MAP.no,
-      isHide: BOOL_MAP.no,
+      isLink: WHETHER_TYPE.no,
+      isCache: WHETHER_TYPE.no,
+      isAffix: WHETHER_TYPE.no,
+      isHide: WHETHER_TYPE.no,
       sort: 0,
-      ...commonFields
-    },
-    {
-      parentId: 0,
-      resourceCode: 'Test',
-      resourceNameEn: 'Test Management',
-      resourceNameZhCn: '测试管理',
-      resourceType: RESOURCE_TYPE.menu,
-      isLink: BOOL_MAP.no,
-      isCache: BOOL_MAP.no,
-      isAffix: BOOL_MAP.no,
-      isHide: BOOL_MAP.no,
-      sort: 1,
       ...commonFields
     },
     {
@@ -93,6 +80,7 @@ const init = async () => {
       resourceNameZhCn: '用户管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/user',
+      component: '/permission/view/user/index',
       sort: 2,
       ...resourceFileds,
       ...commonFields
@@ -104,6 +92,7 @@ const init = async () => {
       resourceNameZhCn: '角色管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/role',
+      component: '/permission/view/role/index',
       sort: 3,
       ...resourceFileds,
       ...commonFields
@@ -115,18 +104,8 @@ const init = async () => {
       resourceNameZhCn: '资源管理',
       resourceType: RESOURCE_TYPE.page,
       path: '/permission/resource',
+      component: '/permission/view/resource/index',
       sort: 4,
-      ...resourceFileds,
-      ...commonFields
-    },
-    {
-      parentId: 2,
-      resourceCode: 'TestPage',
-      resourceNameEn: 'Test Page',
-      resourceNameZhCn: '测试页面',
-      resourceType: RESOURCE_TYPE.page,
-      path: '/test/index',
-      sort: 5,
       ...resourceFileds,
       ...commonFields
     }

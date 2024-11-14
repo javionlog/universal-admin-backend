@@ -1,4 +1,4 @@
-import { BOOL_MAP } from '@/global/constants/indext'
+import { WHETHER_TYPE } from '@/global/constants/indext'
 import { integer, text } from 'drizzle-orm/sqlite-core'
 import { t } from 'elysia'
 
@@ -7,7 +7,7 @@ export const baseFields = {
 
   remark: text('remark'),
   sort: integer('sort').notNull().default(0),
-  delFlag: text('del_flag').notNull().default(BOOL_MAP.no),
+  delFlag: text('del_flag').notNull().default(WHETHER_TYPE.no),
   createdAt: integer('created_at').notNull().default(Date.now()),
   updatedAt: integer('updated_at').notNull().default(Date.now()),
   createdBy: text('created_by').notNull(),
@@ -29,9 +29,9 @@ export const baseColumns = {
     description: baseComments.remark
   }),
   sort: t.Number({ description: baseComments.sort, default: 0 }),
-  delFlag: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  delFlag: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: baseComments.delFlag,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
   createdAt: t.Number({
     description: baseComments.createdAt,

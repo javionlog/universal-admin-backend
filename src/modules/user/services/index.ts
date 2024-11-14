@@ -15,9 +15,9 @@ import {
   user as tableSchema
 } from '@/db/schemas/user/index'
 import {
-  BOOL_MAP,
   DEFAULT_PAGE_INDEXX,
-  DEFAULT_PAGE_SIZE
+  DEFAULT_PAGE_SIZE,
+  WHETHER_TYPE
 } from '@/global/constants/indext'
 import { isEmpty, listToTree, omitObject } from '@/global/libs/index'
 import type { PageParams, TimeRangeParams } from '@/types/index'
@@ -490,7 +490,10 @@ export const findResourceTree = async (
       resources: true
     },
     where: fields =>
-      and(inArray(fields.roleCode, roleCodes), eq(fields.status, BOOL_MAP.yes))
+      and(
+        inArray(fields.roleCode, roleCodes),
+        eq(fields.status, WHETHER_TYPE.yes)
+      )
   })
 
   const resourceCodes = roleList
@@ -501,8 +504,8 @@ export const findResourceTree = async (
     where: fields =>
       and(
         inArray(fields.resourceCode, resourceCodes),
-        eq(fields.status, BOOL_MAP.yes),
-        eq(fields.isHide, BOOL_MAP.no)
+        eq(fields.status, WHETHER_TYPE.yes),
+        eq(fields.isHide, WHETHER_TYPE.no)
       ),
     orderBy: fileds => fileds.sort
   })) as ResourceSelectParams[]

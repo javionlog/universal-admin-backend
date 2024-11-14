@@ -1,6 +1,6 @@
 import { roleToResource } from '@/db/schemas/role-to-resource/index'
 import { baseColumns, baseComments, baseFields } from '@/db/shared/index'
-import { BOOL_MAP, RESOURCE_TYPE } from '@/global/constants/indext'
+import { RESOURCE_TYPE, WHETHER_TYPE } from '@/global/constants/indext'
 import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
@@ -8,7 +8,7 @@ import { type Static, t } from 'elysia'
 
 export const resource = sqliteTable('resource', {
   ...baseFields,
-  status: text('status').notNull().default(BOOL_MAP.no),
+  status: text('status').notNull().default(WHETHER_TYPE.no),
   parentId: integer('parent_id').notNull(),
   resourceCode: text('resource_code').unique().notNull(),
   resourceNameEn: text('resource_name_en').notNull(),
@@ -50,9 +50,9 @@ export const schemaComments = {
 
 const insertColumns = {
   ...baseColumns,
-  status: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  status: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.status,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
   parentId: t.Number({ description: schemaComments.parentId, default: 0 }),
   resourceCode: t.String({ description: schemaComments.resourceCode }),
@@ -73,21 +73,21 @@ const insertColumns = {
   activePath: t.String({ description: schemaComments.activePath }),
   component: t.String({ description: schemaComments.component }),
   icon: t.String({ description: schemaComments.icon }),
-  isLink: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  isLink: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.isLink,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
-  isCache: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  isCache: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.isCache,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
-  isAffix: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  isAffix: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.isAffix,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   }),
-  isHide: t.Union([t.Literal(BOOL_MAP.yes), t.Literal(BOOL_MAP.no)], {
+  isHide: t.Union([t.Literal(WHETHER_TYPE.yes), t.Literal(WHETHER_TYPE.no)], {
     description: schemaComments.isHide,
-    default: BOOL_MAP.no
+    default: WHETHER_TYPE.no
   })
 }
 
